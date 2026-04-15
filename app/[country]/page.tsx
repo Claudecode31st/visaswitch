@@ -219,7 +219,10 @@ export default async function CountryPage({ params }: Props) {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {data.pathways.map((pathway) => (
+            {[...data.pathways].sort((a, b) => {
+              const order = { straightforward: 0, moderate: 1, complex: 2 };
+              return order[a.difficulty] - order[b.difficulty];
+            }).map((pathway) => (
               <div
                 key={pathway.id}
                 className="card-hover bg-white rounded-xl border border-slate-200 p-5 shadow-sm flex flex-col gap-3"

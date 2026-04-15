@@ -41,8 +41,8 @@ function getDifficultyConfig(difficulty: VisaPathway["difficulty"]) {
   }[difficulty];
 }
 
-function getPopularityStars(popularity: VisaPathway["popularity"]) {
-  return { high: 3, medium: 2, low: 1 }[popularity];
+function getDifficultyStars(difficulty: VisaPathway["difficulty"]) {
+  return { straightforward: 1, moderate: 2, complex: 3 }[difficulty];
 }
 
 const serviceTypeIcons: Record<string, typeof Globe> = {
@@ -138,7 +138,7 @@ function PathwayCard({
   countryCode: string;
 }) {
   const difficulty = getDifficultyConfig(pathway.difficulty);
-  const stars = getPopularityStars(pathway.popularity);
+  const stars = getDifficultyStars(pathway.difficulty);
 
   return (
     <div
@@ -147,9 +147,6 @@ function PathwayCard({
         isBestMatch ? "border-blue-300 ring-1 ring-blue-200" : "border-slate-200"
       )}
     >
-      {/* Card header */}
-      <div className={cn("h-1 w-full", pathway.accentColor.replace("border-", "bg-"))} />
-
       <div className="p-5">
         {/* Top row */}
         <div className="flex items-start gap-3 mb-3">
@@ -185,12 +182,12 @@ function PathwayCard({
             <h3 className="text-sm font-bold text-slate-900">{pathway.name}</h3>
             <p className="text-xs text-slate-500 mt-0.5">{pathway.tagline}</p>
           </div>
-          {/* Popularity stars */}
-          <div className="flex gap-0.5 flex-shrink-0 mt-1">
+          {/* Complexity stars: 1=straightforward, 2=moderate, 3=complex */}
+          <div className="flex gap-0.5 flex-shrink-0 mt-1" title={`Complexity: ${pathway.difficulty}`}>
             {Array.from({ length: 3 }).map((_, i) => (
               <Star
                 key={i}
-                className={cn("w-3 h-3", i < stars ? "fill-amber-400 text-amber-400" : "text-slate-200")}
+                className={cn("w-3 h-3", i < stars ? "fill-rose-400 text-rose-400" : "text-slate-200")}
               />
             ))}
           </div>
@@ -362,33 +359,38 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
     return byVisa[goal] ?? byVisa["all"] ?? [];
   }, [currentVisa, goal, countryData]);
 
+  const difficultyOrder = { straightforward: 0, moderate: 1, complex: 2 } as const;
+
   // Build sorted pathway list
   const displayedPathways = useMemo<VisaPathway[]>(() => {
     if (!currentVisa) {
-      // No filter — show all, sorted by popularity
-      const order = { high: 0, medium: 1, low: 2 };
-      return [...countryData.pathways].sort((a, b) => order[a.popularity] - order[b.popularity]);
+      // No filter — show all, sorted straightforward → moderate → complex
+      return [...countryData.pathways].sort(
+        (a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
+      );
     }
 
     // Map by ID for O(1) lookup
     const byId = new Map(countryData.pathways.map((p) => [p.id, p]));
     const ranked: VisaPathway[] = [];
 
-    // First: pathways in the recommended order
+    // First: pathways in the recommended order (preserve relevance ranking)
     for (const id of rankedPathwayIds) {
       const p = byId.get(id);
       if (p) ranked.push(p);
     }
 
-    // Then: remaining pathways not in the ranked list (filtered by fromVisas + forGoals)
+    // Then: remaining pathways filtered by fromVisas + forGoals, sorted by difficulty
+    const extras: VisaPathway[] = [];
     for (const p of countryData.pathways) {
       if (rankedPathwayIds.includes(p.id)) continue;
       const visaMatch = p.fromVisas.includes(currentVisa) || p.fromVisas.length === 0;
       const goalMatch = goal === "all" || p.forGoals.includes(goal as VisaPathway["forGoals"][number]);
-      if (visaMatch && goalMatch) ranked.push(p);
+      if (visaMatch && goalMatch) extras.push(p);
     }
+    extras.sort((a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]);
 
-    return ranked;
+    return [...ranked, ...extras];
   }, [currentVisa, goal, rankedPathwayIds, countryData]);
 
   // Services filter
