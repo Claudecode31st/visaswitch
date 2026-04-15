@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   Globe,
@@ -339,7 +339,38 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [serviceFilter, setServiceFilter] = useState<string>("all");
   const [servicePage, setServicePage] = useState(0);
-  const SERVICES_PER_PAGE = 3;
+  const [servicesPerPage, setServicesPerPage] = useState(3);
+
+  // Measure the pathway column height and derive how many service cards fit
+  const pathwaysColRef = useRef<HTMLDivElement>(null);
+  const firstServiceCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const colEl = pathwaysColRef.current;
+    if (!colEl) return;
+
+    const observer = new ResizeObserver(() => {
+      const colHeight = colEl.getBoundingClientRect().height;
+      const cardEl = firstServiceCardRef.current;
+      // Card height + 12px gap between cards
+      const cardHeight = cardEl ? cardEl.getBoundingClientRect().height + 12 : 176;
+      const count = Math.max(1, Math.floor(colHeight / cardHeight));
+      setServicesPerPage(count);
+      // Keep current page in bounds
+      setServicePage((p) => {
+        const maxPage = Math.ceil(
+          (serviceFilter === "all"
+            ? countryData.services.length
+            : countryData.services.filter((s) => s.type === serviceFilter).length) / count
+        ) - 1;
+        return p > maxPage ? 0 : p;
+      });
+    });
+
+    observer.observe(colEl);
+    return () => observer.disconnect();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
@@ -409,10 +440,11 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
     return list;
   }, [serviceFilter, countryData.services]);
 
-  const totalServicePages = Math.ceil(filteredServices.length / SERVICES_PER_PAGE);
+  const totalServicePages = Math.ceil(filteredServices.length / servicesPerPage);
+  const clampedPage = Math.min(servicePage, Math.max(0, totalServicePages - 1));
   const pagedServices = filteredServices.slice(
-    servicePage * SERVICES_PER_PAGE,
-    (servicePage + 1) * SERVICES_PER_PAGE
+    clampedPage * servicesPerPage,
+    (clampedPage + 1) * servicesPerPage
   );
 
   const serviceTypeLabels: Record<string, string> = {
@@ -566,7 +598,7 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
         <div className="grid lg:grid-cols-3 gap-8">
 
           {/* Pathway results — 2/3 width */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2" ref={pathwaysColRef}>
             {!currentVisa && (
               <div className="mb-5 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-slate-900">
@@ -713,10 +745,12 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                   ))}
                 </div>
 
-                {/* Fixed-height card area — always fits exactly SERVICES_PER_PAGE cards */}
-                <div className="space-y-3 min-h-[calc(3*theme(spacing.1)+(3*168px))]">
-                  {pagedServices.map((service) => (
-                    <ServiceCard key={service.id} service={service} />
+                {/* Cards — height matches pathway column via servicesPerPage */}
+                <div className="space-y-3">
+                  {pagedServices.map((service, i) => (
+                    <div key={service.id} ref={i === 0 ? firstServiceCardRef : undefined}>
+                      <ServiceCard service={service} />
+                    </div>
                   ))}
                 </div>
 
@@ -725,17 +759,17 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                   <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
                     <button
                       onClick={() => setServicePage((p) => p - 1)}
-                      disabled={servicePage === 0}
+                      disabled={clampedPage === 0}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed hover:text-slate-900 transition-colors"
                     >
                       <ChevronLeft className="w-3.5 h-3.5" /> Prev
                     </button>
                     <span className="text-xs text-slate-400">
-                      {servicePage + 1} / {totalServicePages}
+                      {clampedPage + 1} / {totalServicePages}
                     </span>
                     <button
                       onClick={() => setServicePage((p) => p + 1)}
-                      disabled={servicePage >= totalServicePages - 1}
+                      disabled={clampedPage >= totalServicePages - 1}
                       className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed hover:text-slate-900 transition-colors"
                     >
                       Next <ChevronRight className="w-3.5 h-3.5" />
