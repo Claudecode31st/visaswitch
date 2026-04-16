@@ -772,6 +772,72 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                 </p>
               </div>
 
+              {/* Investment snapshot — only when best match has cost data */}
+              {bestMatchPathway && bestMatchPathway.costNumeric && (
+                <div className="glass rounded-2xl border border-white/[0.08] p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <DollarSign className="w-4 h-4 text-emerald-400" />
+                    <h3 className="text-sm font-bold text-white">Investment snapshot</h3>
+                  </div>
+                  <p className="text-xs text-zinc-600 mb-3">
+                    Estimated cost for <span className="text-zinc-400 font-medium">{bestMatchPathway.name}</span>
+                  </p>
+
+                  {/* VAC row */}
+                  <div className="flex items-center justify-between py-2 border-b border-white/[0.06]">
+                    <span className="text-xs text-zinc-500">Application fee (VAC)</span>
+                    <span className="text-xs font-bold text-white">{bestMatchPathway.cost}</span>
+                  </div>
+
+                  {/* Key extra costs for this pathway */}
+                  {countryData.checklist
+                    .filter(item =>
+                      item.estimatedCostNumeric &&
+                      item.estimatedCostNumeric > 0 &&
+                      (
+                        !item.pathwayIds ||
+                        item.pathwayIds.length === 0 ||
+                        item.pathwayIds.includes(bestMatchPathway.id)
+                      )
+                    )
+                    .slice(0, 4)
+                    .map(item => (
+                      <div key={item.id} className="flex items-center justify-between py-2 border-b border-white/[0.04]">
+                        <span className="text-xs text-zinc-600 truncate flex-1 mr-2">{item.title}</span>
+                        <span className="text-xs font-semibold text-zinc-400 flex-shrink-0">{item.estimatedCost}</span>
+                      </div>
+                    ))
+                  }
+
+                  {/* Total */}
+                  {(() => {
+                    const extraTotal = countryData.checklist
+                      .filter(item =>
+                        item.estimatedCostNumeric &&
+                        item.estimatedCostNumeric > 0 &&
+                        (!item.pathwayIds || item.pathwayIds.length === 0 || item.pathwayIds.includes(bestMatchPathway.id))
+                      )
+                      .reduce((sum, item) => sum + (item.estimatedCostNumeric ?? 0), 0);
+                    const grandTotal = (bestMatchPathway.costNumeric ?? 0) + extraTotal;
+                    return grandTotal > 0 ? (
+                      <div className="flex items-center justify-between pt-3 mt-1">
+                        <span className="text-xs font-bold text-zinc-400">Estimated total</span>
+                        <div className="text-right">
+                          <span className="text-sm font-bold text-white">AUD {grandTotal.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+
+                  <Link
+                    href={`/${countryCode}/planner?pathway=${bestMatchPathway.id}`}
+                    className="mt-4 flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-white transition-colors"
+                  >
+                    Full breakdown in Planner <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              )}
+
               {/* Related tools */}
               <div className="glass rounded-2xl border border-white/[0.08] p-5">
                 <h3 className="text-sm font-bold text-white mb-1">Related tools</h3>

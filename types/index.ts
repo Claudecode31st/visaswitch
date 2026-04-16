@@ -24,6 +24,7 @@ export interface VisaPathway {
   processingTime: string;
   validity: string;
   cost: string;
+  costNumeric?: number; // VAC in AUD, numeric for aggregation
   difficulty: "straightforward" | "moderate" | "complex";
   popularity: "high" | "medium" | "low";
   // Content
@@ -94,6 +95,7 @@ export interface ChecklistItem {
   completed?: boolean;
   pathwayIds?: string[];  // if omitted/empty, item applies to ALL pathways
   estimatedCost?: string;  // human-readable, e.g. "AUD 370"
+  estimatedCostNumeric?: number; // for aggregation
 }
 
 export interface RiskFactor {

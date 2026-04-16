@@ -127,10 +127,16 @@ export function TimelinePlanner({ countryData, countryCode }: Props) {
   const itemCosts = useMemo(() => {
     return filteredChecklist
       .filter(item => item.estimatedCost)
-      .map(item => ({ title: item.title, cost: item.estimatedCost! }));
+      .map(item => ({ title: item.title, cost: item.estimatedCost!, numeric: item.estimatedCostNumeric ?? 0 }));
   }, [filteredChecklist]);
 
   const applicationFee = selectedPathwayData?.cost ?? null;
+  const applicationFeeNumeric = selectedPathwayData?.costNumeric ?? 0;
+
+  const totalEstimate = useMemo(() => {
+    const itemsTotal = itemCosts.reduce((sum, i) => sum + i.numeric, 0);
+    return applicationFeeNumeric + itemsTotal;
+  }, [itemCosts, applicationFeeNumeric]);
 
   // Week-by-week grouping (only useful when lodgementDate is set)
   const weekGroups = useMemo(() => {
@@ -303,10 +309,15 @@ export function TimelinePlanner({ countryData, countryCode }: Props) {
                 </div>
               ))}
             </div>
-            <div className="px-5 py-3 bg-white/[0.03] border-t border-white/[0.07] flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-400">Listed costs total</span>
-              <span className="text-xs text-zinc-600">See individual items above</span>
-            </div>
+            {totalEstimate > 0 && (
+              <div className="px-5 py-3.5 bg-white/[0.03] border-t border-white/[0.07] flex items-center justify-between">
+                <span className="text-xs font-bold text-white">Estimated total</span>
+                <div className="text-right">
+                  <span className="text-sm font-bold text-white">AUD {totalEstimate.toLocaleString()}</span>
+                  <span className="block text-xs text-zinc-600">+ ongoing living costs</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
