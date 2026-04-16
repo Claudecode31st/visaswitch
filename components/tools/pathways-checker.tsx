@@ -307,31 +307,35 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
     return [...ranked, ...extras];
   }, [currentVisa, goal, rankedPathwayIds, countryData]);
 
+  const bestMatchPathway = currentVisa && displayedPathways.length > 0 && rankedPathwayIds.includes(displayedPathways[0].id)
+    ? displayedPathways[0]
+    : null;
+
   const relatedTools = [
     {
       icon: ListChecks,
       title: "Checklist & Timeline",
-      description: "Once you've picked a pathway, generate a personalised step-by-step plan with document checklists and key deadlines for your specific situation.",
+      description: "Generate a step-by-step plan with document checklists and key deadlines — pathway-specific items loaded automatically.",
       outcomes: ["Full document checklist", "Milestone timeline with deadlines"],
-      href: `/${countryCode}/planner`,
+      href: bestMatchPathway ? `/${countryCode}/planner?pathway=${bestMatchPathway.id}` : `/${countryCode}/planner`,
       iconColor: "bg-indigo-50 text-indigo-600",
       ctaColor: "text-indigo-600 hover:text-indigo-700",
     },
     {
       icon: BarChart3,
       title: "Pre-lodgement Risk Audit",
-      description: "Stress-test your application before you submit. We score your profile across all key criteria and surface the specific weak points holding you back.",
+      description: "Score your profile across all key risk criteria and surface the specific weak points before you submit.",
       outcomes: ["Risk score across key criteria", "Prioritised list of improvements"],
-      href: `/${countryCode}/audit`,
+      href: bestMatchPathway ? `/${countryCode}/audit?pathway=${bestMatchPathway.id}` : `/${countryCode}/audit`,
       iconColor: "bg-violet-50 text-violet-600",
       ctaColor: "text-violet-600 hover:text-violet-700",
     },
     {
       icon: RefreshCw,
       title: "Refusal Recovery",
-      description: "Received a refusal? We'll help you understand exactly why it happened and build the strongest possible case for your reapplication or appeal.",
+      description: "Received a refusal? Identify the exact reasons and build the strongest case for your reapplication or appeal.",
       outcomes: ["Root cause analysis", "Reapplication strategy & evidence plan"],
-      href: `/${countryCode}/recovery`,
+      href: bestMatchPathway ? `/${countryCode}/recovery?pathway=${bestMatchPathway.id}` : `/${countryCode}/recovery`,
       iconColor: "bg-rose-50 text-rose-600",
       ctaColor: "text-rose-600 hover:text-rose-700",
     },
@@ -541,10 +545,14 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
               </p>
             </div>
 
-            {/* Related tools — expanded cards */}
+            {/* Related tools */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5">
-              <h3 className="text-sm font-bold text-slate-900 mb-1">Continue your journey</h3>
-              <p className="text-xs text-slate-500 mb-4">Use these tools after you've chosen a pathway.</p>
+              <h3 className="text-sm font-bold text-slate-900 mb-1">Related tools</h3>
+              <p className="text-xs text-slate-500 mb-4">
+                {bestMatchPathway
+                  ? <>Pre-loaded for <span className="font-semibold text-slate-700">{bestMatchPathway.name}</span></>
+                  : "Select a pathway above to pre-load these tools with your match."}
+              </p>
               <div className="space-y-4">
                 {relatedTools.map((tool) => {
                   const Icon = tool.icon;
