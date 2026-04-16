@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   Globe,
   ChevronRight,
-  ChevronLeft,
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -15,19 +14,17 @@ import {
   ArrowRight,
   BarChart3,
   ListChecks,
+  RefreshCw,
   Star,
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Briefcase,
-  Languages,
   Shield,
-  Award,
-  BookOpen,
-  Users,
+  FileCheck,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CountryData, VisaPathway, MigrationService, VisaCurrentOption, VisaGoalOption } from "@/types";
+import type { CountryData, VisaPathway, VisaCurrentOption, VisaGoalOption } from "@/types";
 
 interface Props {
   countryData: CountryData;
@@ -44,85 +41,6 @@ function getDifficultyConfig(difficulty: VisaPathway["difficulty"]) {
 
 function getDifficultyStars(difficulty: VisaPathway["difficulty"]) {
   return { straightforward: 1, moderate: 2, complex: 3 }[difficulty];
-}
-
-const serviceTypeIcons: Record<string, typeof Globe> = {
-  "migration-agent": Shield,
-  education: BookOpen,
-  "skills-assessment": Award,
-  english: Languages,
-  recruitment: Briefcase,
-};
-
-const serviceTypeColors: Record<string, string> = {
-  "migration-agent": "bg-violet-100 text-violet-700",
-  education: "bg-blue-100 text-blue-700",
-  "skills-assessment": "bg-amber-100 text-amber-700",
-  english: "bg-cyan-100 text-cyan-700",
-  recruitment: "bg-emerald-100 text-emerald-700",
-};
-
-function ServiceCard({ service }: { service: MigrationService }) {
-  const Icon = serviceTypeIcons[service.type] ?? Shield;
-  const colorClass = serviceTypeColors[service.type] ?? "bg-slate-100 text-slate-700";
-
-  return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 flex flex-col gap-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0", colorClass)}>
-            <Icon className="w-4 h-4" />
-          </div>
-          <div>
-            <h4 className="text-sm font-bold text-slate-900">{service.name}</h4>
-            <span className={cn("inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-0.5", colorClass)}>
-              {service.typeLabel}
-            </span>
-          </div>
-        </div>
-        {service.badge && (
-          <span className="text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
-            {service.badge}
-          </span>
-        )}
-      </div>
-
-      <p className="text-xs text-slate-600 leading-relaxed">{service.tagline}</p>
-
-      <div className="flex flex-wrap gap-1.5">
-        {service.specialties.slice(0, 4).map((s) => (
-          <span key={s} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
-            {s}
-          </span>
-        ))}
-        {service.specialties.length > 4 && (
-          <span className="text-xs text-slate-400 px-1 py-0.5">+{service.specialties.length - 4} more</span>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between mt-auto pt-1 border-t border-slate-100">
-        <div className="text-xs text-slate-500">
-          {service.priceFrom ? (
-            <span>
-              From <span className="font-semibold text-slate-700">{service.priceFrom}</span>
-            </span>
-          ) : (
-            <span className="text-slate-400">Contact for pricing</span>
-          )}
-        </div>
-        {service.website && (
-          <a
-            href={service.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            Visit site <ExternalLink className="w-3 h-3" />
-          </a>
-        )}
-      </div>
-    </div>
-  );
 }
 
 function PathwayCard({
@@ -337,31 +255,6 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
   const [currentVisa, setCurrentVisa] = useState<string>("");
   const [goal, setGoal] = useState<string>("all");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
-  const [serviceFilter, setServiceFilter] = useState<string>("all");
-  const [servicePage, setServicePage] = useState(0);
-  const [servicesPerPage, setServicesPerPage] = useState(3);
-
-  // Measure the card list container — fills the stretched sidebar space —
-  // and derive how many cards fit per page.
-  const serviceListContainerRef = useRef<HTMLDivElement>(null);
-  const firstServiceCardRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const containerEl = serviceListContainerRef.current;
-    if (!containerEl) return;
-
-    const observer = new ResizeObserver(() => {
-      const containerHeight = containerEl.getBoundingClientRect().height;
-      const cardEl = firstServiceCardRef.current;
-      const cardHeight = cardEl ? cardEl.getBoundingClientRect().height + 12 : 176;
-      const count = Math.max(1, Math.floor(containerHeight / cardHeight));
-      setServicesPerPage(count);
-      setServicePage(0);
-    });
-
-    observer.observe(containerEl);
-    return () => observer.disconnect();
-  }, []);
 
   function toggleExpanded(id: string) {
     setExpandedIds((prev) => {
@@ -389,23 +282,19 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
   // Build sorted pathway list
   const displayedPathways = useMemo<VisaPathway[]>(() => {
     if (!currentVisa) {
-      // No filter — show all, sorted straightforward → moderate → complex
       return [...countryData.pathways].sort(
         (a, b) => difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty]
       );
     }
 
-    // Map by ID for O(1) lookup
     const byId = new Map(countryData.pathways.map((p) => [p.id, p]));
     const ranked: VisaPathway[] = [];
 
-    // First: pathways in the recommended order (preserve relevance ranking)
     for (const id of rankedPathwayIds) {
       const p = byId.get(id);
       if (p) ranked.push(p);
     }
 
-    // Then: remaining pathways filtered by fromVisas + forGoals, sorted by difficulty
     const extras: VisaPathway[] = [];
     for (const p of countryData.pathways) {
       if (rankedPathwayIds.includes(p.id)) continue;
@@ -418,39 +307,39 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
     return [...ranked, ...extras];
   }, [currentVisa, goal, rankedPathwayIds, countryData]);
 
-  // Services filter
-  const serviceTypes = useMemo(() => {
-    const types = new Set(countryData.services.map((s) => s.type));
-    return Array.from(types);
-  }, [countryData]);
-
-  const filteredServices = useMemo(() => {
-    const list = serviceFilter === "all"
-      ? countryData.services
-      : countryData.services.filter((s) => s.type === serviceFilter);
-    return list;
-  }, [serviceFilter, countryData.services]);
-
-  const totalServicePages = Math.ceil(filteredServices.length / servicesPerPage);
-  const clampedPage = Math.min(servicePage, Math.max(0, totalServicePages - 1));
-  const pagedServices = filteredServices.slice(
-    clampedPage * servicesPerPage,
-    (clampedPage + 1) * servicesPerPage
-  );
-
-  const serviceTypeLabels: Record<string, string> = {
-    "migration-agent": "Migration Agents",
-    education: "Education",
-    "skills-assessment": "Skills Assessment",
-    english: "English Test Prep",
-    recruitment: "Recruitment",
-  };
-
-  const bestMatchId = displayedPathways[0]?.id ?? null;
+  const relatedTools = [
+    {
+      icon: ListChecks,
+      title: "Checklist & Timeline",
+      description: "Once you've picked a pathway, generate a personalised step-by-step plan with document checklists and key deadlines for your specific situation.",
+      outcomes: ["Full document checklist", "Milestone timeline with deadlines"],
+      href: `/${countryCode}/planner`,
+      iconColor: "bg-indigo-50 text-indigo-600",
+      ctaColor: "text-indigo-600 hover:text-indigo-700",
+    },
+    {
+      icon: BarChart3,
+      title: "Pre-lodgement Risk Audit",
+      description: "Stress-test your application before you submit. We score your profile across all key criteria and surface the specific weak points holding you back.",
+      outcomes: ["Risk score across key criteria", "Prioritised list of improvements"],
+      href: `/${countryCode}/audit`,
+      iconColor: "bg-violet-50 text-violet-600",
+      ctaColor: "text-violet-600 hover:text-violet-700",
+    },
+    {
+      icon: RefreshCw,
+      title: "Refusal Recovery",
+      description: "Received a refusal? We'll help you understand exactly why it happened and build the strongest possible case for your reapplication or appeal.",
+      outcomes: ["Root cause analysis", "Reapplication strategy & evidence plan"],
+      href: `/${countryCode}/recovery`,
+      iconColor: "bg-rose-50 text-rose-600",
+      ctaColor: "text-rose-600 hover:text-rose-700",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Boxed gradient hero */}
+      {/* Hero */}
       <div className="hero-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex items-center gap-1.5 text-sm text-slate-400 mb-4">
@@ -631,53 +520,65 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
             </div>
           </div>
 
-          {/* Sidebar — 1/3 width, stretches to match pathway column height */}
-          <div className="flex flex-col gap-6">
-            {/* Other tools */}
+          {/* Sidebar */}
+          <div className="flex flex-col gap-5">
+
+            {/* What to do next — contextual prompt */}
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 text-white">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="w-4 h-4 text-blue-200" />
+                <span className="text-xs font-bold text-blue-200 uppercase tracking-wider">Your next step</span>
+              </div>
+              <p className="text-sm font-semibold text-white mb-1">
+                {currentVisa
+                  ? `${displayedPathways.length} pathway${displayedPathways.length !== 1 ? "s" : ""} matched`
+                  : "Start by filtering above"}
+              </p>
+              <p className="text-xs text-blue-100 leading-relaxed">
+                {currentVisa
+                  ? "Expand any pathway for full pros, cons, next steps and an application plan."
+                  : "Select your current visa and your goal to see personalised, ranked results."}
+              </p>
+            </div>
+
+            {/* Related tools — expanded cards */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5">
-              <h3 className="text-sm font-bold text-slate-900 mb-4">Related tools</h3>
-              <div className="space-y-3">
-                {[
-                  {
-                    icon: ListChecks,
-                    title: "Checklist & Timeline",
-                    desc: "Build your step-by-step application plan",
-                    href: `/${countryCode}/planner`,
-                    color: "bg-indigo-50 text-indigo-600",
-                  },
-                  {
-                    icon: BarChart3,
-                    title: "Risk Audit",
-                    desc: "Identify weak spots before you apply",
-                    href: `/${countryCode}/audit`,
-                    color: "bg-violet-50 text-violet-600",
-                  },
-                  {
-                    icon: ArrowRight,
-                    title: "Refusal Recovery",
-                    desc: "Recover from a prior visa refusal",
-                    href: `/${countryCode}/recovery`,
-                    color: "bg-rose-50 text-rose-600",
-                  },
-                ].map((tool) => {
+              <h3 className="text-sm font-bold text-slate-900 mb-1">Continue your journey</h3>
+              <p className="text-xs text-slate-500 mb-4">Use these tools after you've chosen a pathway.</p>
+              <div className="space-y-4">
+                {relatedTools.map((tool) => {
                   const Icon = tool.icon;
                   return (
-                    <Link
-                      key={tool.title}
-                      href={tool.href}
-                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group"
-                    >
-                      <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0", tool.color)}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
-                          {tool.title}
+                    <div key={tool.title} className="group">
+                      <div className="flex items-start gap-3 mb-2">
+                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5", tool.iconColor)}>
+                          <Icon className="w-4 h-4" />
                         </div>
-                        <div className="text-xs text-slate-500">{tool.desc}</div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-bold text-slate-900 mb-1">{tool.title}</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed">{tool.description}</p>
+                        </div>
                       </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-slate-400 ml-auto group-hover:text-blue-500 transition-colors" />
-                    </Link>
+                      <div className="ml-11 space-y-1 mb-2.5">
+                        {tool.outcomes.map((o) => (
+                          <div key={o} className="flex items-center gap-1.5">
+                            <FileCheck className="w-3 h-3 text-slate-300 flex-shrink-0" />
+                            <span className="text-xs text-slate-500">{o}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="ml-11">
+                        <Link
+                          href={tool.href}
+                          className={cn("inline-flex items-center gap-1 text-xs font-semibold transition-colors", tool.ctaColor)}
+                        >
+                          Open tool <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                      {tool !== relatedTools[relatedTools.length - 1] && (
+                        <div className="border-t border-slate-100 mt-4" />
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -685,97 +586,28 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
 
             {/* Official resources */}
             <div className="bg-slate-50 rounded-2xl border border-slate-200 p-5">
-              <h3 className="text-sm font-bold text-slate-900 mb-3">Official resources</h3>
+              <div className="flex items-center gap-2 mb-3">
+                <Shield className="w-4 h-4 text-slate-400" />
+                <h3 className="text-sm font-bold text-slate-900">Official source</h3>
+              </div>
               <a
                 href={countryData.visaBodyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-xs font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                className="flex items-center justify-between gap-2 bg-white rounded-xl border border-slate-200 px-3.5 py-3 hover:border-blue-200 hover:bg-blue-50 transition-all group"
               >
-                <Shield className="w-3.5 h-3.5 flex-shrink-0" />
-                {countryData.visaBodyName}
-                <ExternalLink className="w-3 h-3 ml-auto" />
+                <div>
+                  <div className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
+                    {countryData.visaBodyName}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-0.5">Official government portal</div>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-500 flex-shrink-0 transition-colors" />
               </a>
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Always verify requirements directly with the official immigration authority before applying.
+              <p className="text-xs text-slate-500 mt-3 leading-relaxed">
+                Immigration rules change frequently. Always verify current requirements directly with the official authority before lodging your application.
               </p>
             </div>
-
-            {/* Services directory — flex-1 so it fills remaining sidebar height */}
-            {countryData.services && countryData.services.length > 0 && (
-              <div className="flex-1 min-h-0 flex flex-col bg-white rounded-2xl border border-slate-200 p-5">
-                <h3 className="text-sm font-bold text-slate-900 mb-1">Services directory</h3>
-                <p className="text-xs text-slate-500 mb-3">Agents, education, assessors & recruiters</p>
-
-                {/* Type filter */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  <button
-                    onClick={() => { setServiceFilter("all"); setServicePage(0); }}
-                    className={cn(
-                      "px-2.5 py-1 text-xs font-semibold rounded-full border transition-all",
-                      serviceFilter === "all"
-                        ? "bg-slate-900 text-white border-slate-900"
-                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
-                    )}
-                  >
-                    All
-                  </button>
-                  {serviceTypes.map((type) => (
-                    <button
-                      key={type}
-                      onClick={() => { setServiceFilter(type); setServicePage(0); }}
-                      className={cn(
-                        "px-2.5 py-1 text-xs font-semibold rounded-full border transition-all",
-                        serviceFilter === type
-                          ? "bg-slate-900 text-white border-slate-900"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
-                      )}
-                    >
-                      {serviceTypeLabels[type] ?? type}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Card container — flex-1 fills the available space; ResizeObserver measures this */}
-                <div ref={serviceListContainerRef} className="flex-1 min-h-0 space-y-3 overflow-hidden">
-                  {pagedServices.map((service, i) => (
-                    <div key={service.id} ref={i === 0 ? firstServiceCardRef : undefined}>
-                      <ServiceCard service={service} />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {totalServicePages > 1 && (
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
-                    <button
-                      onClick={() => setServicePage((p) => p - 1)}
-                      disabled={clampedPage === 0}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed hover:text-slate-900 transition-colors"
-                    >
-                      <ChevronLeft className="w-3.5 h-3.5" /> Prev
-                    </button>
-                    <span className="text-xs text-slate-400">
-                      {clampedPage + 1} / {totalServicePages}
-                    </span>
-                    <button
-                      onClick={() => setServicePage((p) => p + 1)}
-                      disabled={clampedPage >= totalServicePages - 1}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed hover:text-slate-900 transition-colors"
-                    >
-                      Next <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                )}
-
-                <div className="mt-4 flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
-                  <Users className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-amber-800 leading-relaxed">
-                    Listings are informational only. VisaSwitch does not endorse any provider — verify credentials independently.
-                  </p>
-                </div>
-              </div>
-            )}
 
             {/* Disclaimer */}
             <div className="text-xs text-slate-400 leading-relaxed px-1">
