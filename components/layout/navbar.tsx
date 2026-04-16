@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Menu, X, ChevronDown, Globe, ArrowRight,
   ListChecks, BarChart3, RefreshCw, MapPin,
+  LogIn, Sparkles, Layers, Tag, Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { countryList } from "@/data";
@@ -141,7 +142,10 @@ export function Navbar() {
                     <span>{currentCountry.name}</span>
                   </>
                 ) : (
-                  "Countries"
+                  <>
+                    <Globe className="w-3.5 h-3.5" />
+                    <span>Countries</span>
+                  </>
                 )}
                 <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-150", openMenu === "countries" && "rotate-180")} />
               </button>
@@ -193,7 +197,10 @@ export function Navbar() {
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
-                Tools
+                <>
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Tools</span>
+                </>
                 <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-150", openMenu === "tools" && "rotate-180")} />
               </button>
 
@@ -248,14 +255,16 @@ export function Navbar() {
 
             <Link
               href="/pricing"
-              className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors"
             >
+              <Tag className="w-3.5 h-3.5" />
               Pricing
             </Link>
             <Link
               href="/about"
-              className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors"
             >
+              <Info className="w-3.5 h-3.5" />
               About
             </Link>
           </div>
@@ -264,14 +273,16 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             <Link
               href="/sign-in"
-              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
             >
+              <LogIn className="w-3.5 h-3.5" />
               Sign in
             </Link>
             <Link
               href="/sign-up"
-              className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-sm shadow-blue-200"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all shadow-md shadow-blue-500/25 ring-1 ring-inset ring-white/10"
             >
+              <Sparkles className="w-3.5 h-3.5" />
               Get started free
             </Link>
           </div>
