@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getCountryData, isValidCountry } from "@/data";
 import { RefusalRecovery } from "@/components/tools/refusal-recovery";
@@ -25,5 +26,9 @@ export default async function RecoveryPage({ params }: Props) {
   const { country } = await params;
   if (!isValidCountry(country)) notFound();
   const data = getCountryData(country)!;
-  return <RefusalRecovery countryData={data} countryCode={country} />;
+  return (
+    <Suspense>
+      <RefusalRecovery countryData={data} countryCode={country} />
+    </Suspense>
+  );
 }

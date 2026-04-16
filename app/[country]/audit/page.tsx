@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getCountryData, isValidCountry } from "@/data";
 import { RiskAudit } from "@/components/tools/risk-audit";
@@ -25,5 +26,9 @@ export default async function AuditPage({ params }: Props) {
   const { country } = await params;
   if (!isValidCountry(country)) notFound();
   const data = getCountryData(country)!;
-  return <RiskAudit countryData={data} countryCode={country} />;
+  return (
+    <Suspense>
+      <RiskAudit countryData={data} countryCode={country} />
+    </Suspense>
+  );
 }

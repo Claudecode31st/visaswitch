@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getCountryData, isValidCountry } from "@/data";
 import { TimelinePlanner } from "@/components/tools/timeline-planner";
@@ -25,5 +26,9 @@ export default async function PlannerPage({ params }: Props) {
   const { country } = await params;
   if (!isValidCountry(country)) notFound();
   const data = getCountryData(country)!;
-  return <TimelinePlanner countryData={data} countryCode={country} />;
+  return (
+    <Suspense>
+      <TimelinePlanner countryData={data} countryCode={country} />
+    </Suspense>
+  );
 }

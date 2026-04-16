@@ -1,22 +1,11 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  RefreshCw,
-  ChevronRight,
-  ArrowRight,
-  CheckCircle,
-  AlertCircle,
-  XCircle,
-  Globe,
-  BarChart3,
-  ListChecks,
-  FileText,
-  Search,
-  ChevronDown,
-  ChevronUp,
-  Info,
+  RefreshCw, ChevronRight, ArrowRight, CheckCircle, AlertCircle,
+  XCircle, Globe, BarChart3, ListChecks, Search, ChevronDown,
+  ChevronUp, Info, FileText, Clock, Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CountryData, RefusalReason } from "@/types";
@@ -33,59 +22,57 @@ const frequencyConfig = {
 };
 
 export function RefusalRecovery({ countryData, countryCode }: Props) {
-  const [step, setStep] = useState<"intro" | "identify" | "results">("intro");
+  const searchParams = useSearchParams();
+  const pathwayParam = searchParams.get("pathway") ?? "";
+
+  const [selectedPathway, setSelectedPathway] = useState<string>(pathwayParam);
   const [selectedReasons, setSelectedReasons] = useState<Set<string>>(new Set());
-  const [visaType, setVisaType] = useState<string>("");
   const [refusalText, setRefusalText] = useState<string>("");
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const [expandedReason, setExpandedReason] = useState<string | null>(null);
+  const [showTextInput, setShowTextInput] = useState(false);
 
-  // Filter reasons by visa type if selected
-  const relevantReasons = visaType
-    ? countryData.refusalReasons.filter(
-        (r) => r.pathwaysAffected.includes(visaType) || r.pathwaysAffected.length === 0
-      )
-    : countryData.refusalReasons;
-
-  // Auto-detect potential reasons from refusal letter text
-  const detectedReasons = refusalText
-    ? countryData.refusalReasons.filter((r) =>
-        [r.title.toLowerCase(), r.description.toLowerCase()].some(
-          (text) =>
-            text.includes("financial") && refusalText.toLowerCase().includes("financial") ||
-            text.includes("genuine") && refusalText.toLowerCase().includes("genuine") ||
-            text.includes("english") && refusalText.toLowerCase().includes("english") ||
-            text.includes("health") && refusalText.toLowerCase().includes("health") ||
-            text.includes("character") && refusalText.toLowerCase().includes("character") ||
-            text.includes("skills") && refusalText.toLowerCase().includes("skills") ||
-            text.includes("document") && refusalText.toLowerCase().includes("document")
+  // Filter reasons by pathway
+  const relevantReasons = useMemo(() => {
+    return selectedPathway
+      ? countryData.refusalReasons.filter(
+          (r) => r.pathwaysAffected.includes(selectedPathway) || r.pathwaysAffected.length === 0
         )
+      : countryData.refusalReasons;
+  }, [selectedPathway, countryData.refusalReasons]);
+
+  // Auto-detect from pasted text
+  const detectedReasons = useMemo(() => {
+    if (!refusalText) return [];
+    return countryData.refusalReasons.filter((r) =>
+      [r.title.toLowerCase(), r.description.toLowerCase()].some(
+        (text) =>
+          (text.includes("financial") && refusalText.toLowerCase().includes("financial")) ||
+          (text.includes("genuine") && refusalText.toLowerCase().includes("genuine")) ||
+          (text.includes("english") && refusalText.toLowerCase().includes("english")) ||
+          (text.includes("health") && refusalText.toLowerCase().includes("health")) ||
+          (text.includes("character") && refusalText.toLowerCase().includes("character")) ||
+          (text.includes("skills") && refusalText.toLowerCase().includes("skills")) ||
+          (text.includes("document") && refusalText.toLowerCase().includes("document"))
       )
-    : [];
+    );
+  }, [refusalText, countryData.refusalReasons]);
 
   function toggleReason(id: string) {
     setSelectedReasons((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }
 
   const selectedReasonData = countryData.refusalReasons.filter((r) => selectedReasons.has(r.id));
 
-  function reset() {
-    setStep("intro");
-    setSelectedReasons(new Set());
-    setVisaType("");
-    setRefusalText("");
-    setExpanded(null);
-  }
-
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
+      {/* Hero header */}
       <div className="hero-gradient text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-sm text-slate-400 mb-4">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
             <ChevronRight className="w-4 h-4" />
@@ -102,346 +89,232 @@ export function RefusalRecovery({ countryData, countryCode }: Props) {
               <p className="text-slate-400 text-sm">{countryData.name} — Understand your refusal and recover</p>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {step === "intro" && (
-          <div className="space-y-5">
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-7">
-              <h2 className="text-xl font-bold text-slate-900 mb-3">After a refusal — where to start</h2>
-              <p className="text-slate-600 text-sm leading-relaxed mb-5">
-                A refusal is not the end. Most refusals are addressable with the right evidence and understanding. This tool helps you identify why the visa was refused and maps out your strongest path forward.
-              </p>
-              <div className="space-y-3 mb-6">
-                {[
-                  { label: "Identify the exact reasons for refusal", icon: Search },
-                  { label: "Understand which reasons are most serious", icon: AlertCircle },
-                  { label: "Get specific, actionable solutions for each reason", icon: CheckCircle },
-                  { label: "Know whether to re-apply, appeal, or change pathway", icon: ArrowRight },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div key={item.label} className="flex items-center gap-3">
-                      <Icon className="w-4 h-4 text-purple-500" />
-                      <span className="text-sm text-slate-700">{item.label}</span>
-                    </div>
-                  );
-                })}
+          {/* Config bar */}
+          <div className="mt-6 bg-white/10 border border-white/15 rounded-2xl p-5 backdrop-blur-sm">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Refused visa type</label>
+                <select
+                  className="w-full px-3 py-2.5 rounded-xl border border-white/20 bg-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  value={selectedPathway}
+                  onChange={(e) => setSelectedPathway(e.target.value)}
+                >
+                  <option value="" className="text-slate-900">All visa types</option>
+                  {countryData.pathways.map((p) => (
+                    <option key={p.id} value={p.id} className="text-slate-900">
+                      {p.subclass ? `Subclass ${p.subclass} — ` : ""}{p.name}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <button
-                onClick={() => setStep("identify")}
-                className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-violet-600 rounded-xl hover:from-purple-600 hover:to-violet-700 transition-all"
-              >
-                Start recovery analysis
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Common refusal reasons preview */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <h3 className="text-base font-bold text-slate-900 mb-4">Most common {countryData.name} refusal reasons</h3>
-              <div className="space-y-3">
-                {countryData.refusalReasons
-                  .filter((r) => r.frequency === "very-common")
-                  .map((reason) => {
-                    const fc = frequencyConfig[reason.frequency];
-                    return (
-                      <div key={reason.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <XCircle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-sm font-semibold text-slate-800">{reason.title}</p>
-                          <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{reason.description}</p>
-                          <span className={cn("inline-flex text-xs font-semibold px-2 py-0.5 rounded-full border mt-2", fc.color)}>
-                            {fc.label}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === "identify" && (
-          <div className="space-y-5">
-            {/* Visa type selector */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <h2 className="text-lg font-bold text-slate-900 mb-4">Step 1: Tell us about your refusal</h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-slate-800 mb-2">
-                    Which visa type was refused?
-                  </label>
-                  <select
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
-                    value={visaType}
-                    onChange={(e) => setVisaType(e.target.value)}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Refusal letter text</label>
+                  <button
+                    onClick={() => setShowTextInput(!showTextInput)}
+                    className="text-xs text-slate-400 hover:text-white transition-colors underline"
                   >
-                    <option value="">All visa types</option>
-                    {countryData.pathways.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.subclass ? `Subclass ${p.subclass} — ` : ""}{p.name}
-                      </option>
-                    ))}
-                  </select>
+                    {showTextInput ? "Hide" : "Paste to auto-detect →"}
+                  </button>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-slate-800 mb-2">
-                    Paste key text from your refusal letter (optional)
-                  </label>
+                {showTextInput ? (
                   <textarea
-                    rows={4}
-                    placeholder="Paste the refusal reasons from your letter here — we will help identify which category they fall into..."
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                    rows={3}
+                    placeholder="Paste key text from your refusal letter..."
+                    className="w-full px-3 py-2.5 rounded-xl border border-white/20 bg-white/10 text-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
                     value={refusalText}
                     onChange={(e) => setRefusalText(e.target.value)}
                   />
-                </div>
-
-                {detectedReasons.length > 0 && (
-                  <div className="p-4 bg-purple-50 rounded-xl border border-purple-200">
-                    <div className="flex items-start gap-2 mb-2">
-                      <Info className="w-4 h-4 text-purple-500 mt-0.5" />
-                      <p className="text-xs font-semibold text-purple-800">
-                        Detected {detectedReasons.length} possible refusal reason{detectedReasons.length > 1 ? "s" : ""} from your letter
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {detectedReasons.map((r) => (
-                        <button
-                          key={r.id}
-                          onClick={() => toggleReason(r.id)}
-                          className={cn(
-                            "text-xs font-medium px-3 py-1.5 rounded-lg border transition-all",
-                            selectedReasons.has(r.id)
-                              ? "bg-purple-500 text-white border-purple-500"
-                              : "bg-white text-purple-700 border-purple-300 hover:bg-purple-50"
-                          )}
-                        >
-                          {r.title}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 mt-1">Paste refusal letter text to auto-identify matching reasons below.</p>
                 )}
               </div>
             </div>
 
-            {/* Reason selector */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <h3 className="text-sm font-bold text-slate-900 mb-1">Step 2: Select the reasons cited in your refusal</h3>
-              <p className="text-slate-500 text-xs mb-4">Select all that apply — you can select multiple reasons.</p>
-
-              <div className="space-y-3">
-                {relevantReasons.map((reason) => {
-                  const isSelected = selectedReasons.has(reason.id);
-                  const fc = frequencyConfig[reason.frequency];
-                  return (
+            {/* Auto-detected reasons */}
+            {detectedReasons.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <p className="text-xs font-semibold text-purple-200 mb-2">
+                  {detectedReasons.length} possible reason{detectedReasons.length > 1 ? "s" : ""} detected — click to select:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {detectedReasons.map((r) => (
                     <button
-                      key={reason.id}
-                      onClick={() => toggleReason(reason.id)}
+                      key={r.id}
+                      onClick={() => toggleReason(r.id)}
                       className={cn(
-                        "w-full text-left p-4 rounded-xl border transition-all",
-                        isSelected
-                          ? "border-purple-400 bg-purple-50"
-                          : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        "text-xs font-medium px-3 py-1.5 rounded-lg border transition-all",
+                        selectedReasons.has(r.id)
+                          ? "bg-purple-500 text-white border-purple-400"
+                          : "bg-white/10 text-white border-white/20 hover:bg-white/20"
                       )}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all", isSelected ? "border-purple-500 bg-purple-500" : "border-slate-300")}>
-                          {isSelected && <CheckCircle className="w-4 h-4 text-white" />}
+                      {r.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main content — two columns */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid lg:grid-cols-5 gap-8">
+
+          {/* Left column — reason selector (3/5 width) */}
+          <div className="lg:col-span-3 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-slate-900">Select your refusal reasons</h2>
+              <span className="text-sm text-slate-500">{selectedReasons.size} selected</span>
+            </div>
+            <p className="text-sm text-slate-500 -mt-2">Select all reasons cited in your refusal letter.</p>
+
+            <div className="space-y-3">
+              {relevantReasons.map((reason) => {
+                const isSelected = selectedReasons.has(reason.id);
+                const fc = frequencyConfig[reason.frequency];
+                return (
+                  <div
+                    key={reason.id}
+                    className={cn(
+                      "bg-white rounded-xl border transition-all shadow-sm overflow-hidden",
+                      isSelected ? "border-purple-300 ring-1 ring-purple-200" : "border-slate-200 hover:border-slate-300"
+                    )}
+                  >
+                    <button
+                      onClick={() => toggleReason(reason.id)}
+                      className="w-full p-4 flex items-start gap-3 text-left"
+                    >
+                      <div className={cn(
+                        "w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all",
+                        isSelected ? "border-purple-500 bg-purple-500" : "border-slate-300"
+                      )}>
+                        {isSelected && <CheckCircle className="w-4 h-4 text-white" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <p className="text-sm font-semibold text-slate-900">{reason.title}</p>
+                          <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full border", fc.color)}>{fc.label}</span>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <p className="text-sm font-semibold text-slate-900">{reason.title}</p>
-                            <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full border", fc.color)}>
-                              {fc.label}
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-500 leading-relaxed">{reason.description}</p>
-                        </div>
+                        <p className="text-xs text-slate-500 leading-relaxed">{reason.description}</p>
+                      </div>
+                      <div className="flex-shrink-0 mt-1">
+                        {isSelected
+                          ? <ChevronUp className="w-4 h-4 text-purple-400" />
+                          : <ChevronDown className="w-4 h-4 text-slate-300" />}
                       </div>
                     </button>
-                  );
-                })}
-              </div>
 
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setStep("intro")}
-                  className="px-5 py-3 text-sm font-medium text-slate-600 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={() => setStep("results")}
-                  disabled={selectedReasons.size === 0}
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-8 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-500 to-violet-600 rounded-xl hover:from-purple-600 hover:to-violet-700 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  Generate recovery plan
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === "results" && (
-          <div className="space-y-5">
-            {/* Recovery summary */}
-            <div className="bg-gradient-to-br from-slate-900 to-purple-950 rounded-2xl p-7 text-white">
-              <h2 className="text-xl font-bold mb-1">Your Refusal Recovery Plan</h2>
-              <p className="text-slate-400 text-sm mb-5">
-                {selectedReasons.size} refusal reason{selectedReasons.size > 1 ? "s" : ""} identified — {countryData.name}
-              </p>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white/10 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold mb-1">{selectedReasons.size}</div>
-                  <div className="text-xs text-slate-400">Reasons identified</div>
-                </div>
-                <div className="bg-white/10 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold mb-1 text-amber-300">
-                    {selectedReasonData.reduce((sum, r) => sum + r.solutions.length, 0)}
-                  </div>
-                  <div className="text-xs text-slate-400">Action steps</div>
-                </div>
-                <div className="bg-white/10 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold mb-1 text-emerald-300">
-                    {selectedReasonData.filter((r) => r.frequency !== "occasional").length}
-                  </div>
-                  <div className="text-xs text-slate-400">High-priority fixes</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Recovery plan for each reason */}
-            {selectedReasonData.map((reason, index) => {
-              const fc = frequencyConfig[reason.frequency];
-              const isExpanded = expanded === reason.id;
-              return (
-                <div key={reason.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                  <button
-                    onClick={() => setExpanded(isExpanded ? null : reason.id)}
-                    className="w-full p-6 flex items-start gap-4 text-left hover:bg-slate-50/50 transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-purple-100 border border-purple-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-sm font-bold text-purple-700">{index + 1}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <h3 className="text-sm font-bold text-slate-900">{reason.title}</h3>
-                        <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full border", fc.color)}>
-                          {fc.label}
-                        </span>
+                    {/* Inline solutions when selected */}
+                    {isSelected && reason.solutions.length > 0 && (
+                      <div className="px-4 pb-4 border-t border-purple-100 pt-3 ml-8">
+                        <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Recovery steps</h4>
+                        <ol className="space-y-2">
+                          {reason.solutions.map((solution, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="w-4 h-4 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                              <span className="text-xs text-slate-700 leading-relaxed">{solution}</span>
+                            </li>
+                          ))}
+                        </ol>
                       </div>
-                      <p className="text-xs text-slate-500 leading-relaxed">{reason.description}</p>
-                    </div>
-                    {isExpanded ? (
-                      <ChevronUp className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0 mt-1" />
                     )}
-                  </button>
-
-                  {isExpanded && (
-                    <div className="px-6 pb-6 border-t border-slate-100 pt-5">
-                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
-                        Actionable solutions
-                      </h4>
-                      <ol className="space-y-3">
-                        {reason.solutions.map((solution, i) => (
-                          <li key={i} className="flex items-start gap-3">
-                            <div className="w-5 h-5 rounded-full bg-purple-100 border border-purple-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-xs font-bold text-purple-700">{i + 1}</span>
-                            </div>
-                            <span className="text-sm text-slate-700 leading-relaxed">{solution}</span>
-                          </li>
-                        ))}
-                      </ol>
-
-                      {reason.pathwaysAffected.length > 0 && (
-                        <div className="mt-4 pt-4 border-t border-slate-100">
-                          <p className="text-xs text-slate-500 mb-2">Affects these visa types:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {reason.pathwaysAffected.map((p) => {
-                              const pathway = countryData.pathways.find((pw) => pw.id === p);
-                              return (
-                                <span key={p} className="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full">
-                                  {pathway ? pathway.name : p}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* General advice */}
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-amber-800 mb-2">General refusal recovery advice</p>
-                  <ul className="space-y-1.5">
-                    {[
-                      "Check your statutory deadlines — merits review (AAT in Australia, IAC in UK) has strict time limits from the refusal date",
-                      "Do not re-lodge immediately without addressing the refusal reasons — you risk a second refusal on the same grounds",
-                      "For complex refusals, engage a registered migration agent or immigration lawyer to review the decision letter in full",
-                      "Consider alternative visa pathways if the primary pathway is no longer viable — use the Pathway Checker for options",
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
-                        <span className="text-xs text-amber-800 leading-relaxed">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation */}
-            <div className="grid sm:grid-cols-3 gap-4">
-              <Link
-                href={`/${countryCode}/pathways`}
-                className="flex flex-col gap-2 p-4 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
-              >
-                <Globe className="w-5 h-5 text-blue-500" />
-                <span className="text-sm font-semibold text-slate-800 group-hover:text-blue-700">Alternative Pathways</span>
-                <span className="text-xs text-slate-500">Find other visa options you qualify for</span>
-              </Link>
-              <Link
-                href={`/${countryCode}/audit`}
-                className="flex flex-col gap-2 p-4 bg-white rounded-xl border border-slate-200 hover:border-violet-300 hover:bg-violet-50 transition-all group"
-              >
-                <BarChart3 className="w-5 h-5 text-violet-500" />
-                <span className="text-sm font-semibold text-slate-800 group-hover:text-violet-700">Risk Audit</span>
-                <span className="text-xs text-slate-500">Audit risks before re-applying</span>
-              </Link>
-              <Link
-                href={`/${countryCode}/planner`}
-                className="flex flex-col gap-2 p-4 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all group"
-              >
-                <ListChecks className="w-5 h-5 text-indigo-500" />
-                <span className="text-sm font-semibold text-slate-800 group-hover:text-indigo-700">Application Plan</span>
-                <span className="text-xs text-slate-500">Build a new application checklist</span>
-              </Link>
-            </div>
-
-            <div className="text-center">
-              <button onClick={reset} className="text-sm text-slate-500 hover:text-slate-700 transition-colors underline">
-                Start a new refusal analysis
-              </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        )}
+
+          {/* Right column — live recovery plan (2/5 width, sticky) */}
+          <div className="lg:col-span-2">
+            <div className="sticky top-6 space-y-4">
+              {/* Summary card */}
+              <div className="bg-gradient-to-br from-slate-900 to-purple-950 rounded-2xl p-5 text-white">
+                <h3 className="text-sm font-bold mb-1">Recovery Plan</h3>
+                {selectedReasons.size === 0 ? (
+                  <p className="text-xs text-slate-400 leading-relaxed">Select reasons on the left to build your personalised recovery plan.</p>
+                ) : (
+                  <>
+                    <p className="text-xs text-slate-400 mb-4">{selectedReasons.size} reason{selectedReasons.size !== 1 ? "s" : ""} identified</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-white/10 rounded-xl p-3 text-center">
+                        <div className="text-xl font-bold mb-0.5">{selectedReasons.size}</div>
+                        <div className="text-xs text-slate-400">Reasons</div>
+                      </div>
+                      <div className="bg-white/10 rounded-xl p-3 text-center">
+                        <div className="text-xl font-bold text-amber-300 mb-0.5">
+                          {selectedReasonData.reduce((sum, r) => sum + r.solutions.length, 0)}
+                        </div>
+                        <div className="text-xs text-slate-400">Action steps</div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* General advice — always shown */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                  <h4 className="text-xs font-bold text-amber-800">Key advice</h4>
+                </div>
+                <ul className="space-y-1.5">
+                  {[
+                    "Check merits review deadlines — strict time limits apply from the refusal date",
+                    "Do not re-lodge immediately without addressing the refusal reasons",
+                    "For complex refusals, engage a registered migration agent or lawyer",
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-1.5">
+                      <div className="w-1 h-1 rounded-full bg-amber-400 mt-1.5 flex-shrink-0" />
+                      <span className="text-xs text-amber-800 leading-relaxed">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Navigation to other tools */}
+              <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-2">
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">After recovery planning</h4>
+                <Link
+                  href={`/${countryCode}/pathways`}
+                  className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-50 transition-colors group"
+                >
+                  <Globe className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-slate-800 group-hover:text-blue-700">Alternative pathways</div>
+                    <div className="text-xs text-slate-400">Find other options</div>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-400" />
+                </Link>
+                <Link
+                  href={selectedPathway ? `/${countryCode}/audit?pathway=${selectedPathway}` : `/${countryCode}/audit`}
+                  className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-50 transition-colors group"
+                >
+                  <BarChart3 className="w-4 h-4 text-violet-500 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-slate-800 group-hover:text-violet-700">Risk audit</div>
+                    <div className="text-xs text-slate-400">Before re-applying</div>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-violet-400" />
+                </Link>
+                <Link
+                  href={selectedPathway ? `/${countryCode}/planner?pathway=${selectedPathway}` : `/${countryCode}/planner`}
+                  className="flex items-center gap-2 p-3 rounded-lg hover:bg-slate-50 transition-colors group"
+                >
+                  <ListChecks className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-slate-800 group-hover:text-indigo-700">New application plan</div>
+                    <div className="text-xs text-slate-400">Fresh checklist & timeline</div>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-400" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
