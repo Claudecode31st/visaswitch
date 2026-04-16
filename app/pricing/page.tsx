@@ -73,21 +73,28 @@ const plans = [
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <section className="hero-gradient text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold mb-4 tracking-tight">Simple, transparent pricing</h1>
-          <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+    <div className="flex flex-col bg-black">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-black py-20">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-0 right-[20%] w-[500px] h-[400px] rounded-full opacity-[0.06]"
+            style={{ background: "radial-gradient(circle, rgba(180,200,255,1) 0%, transparent 70%)" }} />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-4 tracking-tight text-white">
+            Simple, <span className="gradient-text">transparent pricing</span>
+          </h1>
+          <p className="text-zinc-500 text-lg max-w-2xl mx-auto leading-relaxed">
             Start with the free pathway check. Upgrade when you need personalised planning, risk analysis, or refusal recovery.
           </p>
         </div>
+        <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-b from-transparent to-[#04060c] pointer-events-none" />
       </section>
 
       {/* Plans */}
-      <section className="py-16">
+      <section className="section-dark py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-5">
             {plans.map((plan) => {
               const Icon = plan.icon;
               return (
@@ -95,46 +102,38 @@ export default function PricingPage() {
                   key={plan.name}
                   className={`rounded-2xl border p-7 flex flex-col ${
                     plan.highlight
-                      ? "bg-gradient-to-br from-slate-900 to-slate-800 border-blue-500/30 shadow-xl shadow-blue-500/10 text-white"
-                      : "bg-white border-slate-200 shadow-sm"
+                      ? "bg-white/[0.07] border-white/25 shadow-[0_0_60px_rgba(255,255,255,0.06)]"
+                      : "glass border-white/[0.08]"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-5">
                     <div>
                       {plan.badge && (
-                        <span className="inline-block text-xs font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded-full mb-2">
+                        <span className="inline-block text-xs font-bold text-zinc-300 bg-white/[0.09] border border-white/15 px-2.5 py-1 rounded-full mb-2">
                           {plan.badge}
                         </span>
                       )}
-                      <h2 className={`text-lg font-bold ${plan.highlight ? "text-white" : "text-slate-900"}`}>
-                        {plan.name}
-                      </h2>
+                      <h2 className="text-lg font-bold text-white">{plan.name}</h2>
                     </div>
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${plan.highlight ? "bg-blue-500/20 border border-blue-400/30" : "bg-slate-100 border border-slate-200"}`}>
-                      <Icon className={`w-5 h-5 ${plan.highlight ? "text-blue-300" : "text-slate-500"}`} />
+                    <div className="w-10 h-10 rounded-xl bg-white/[0.07] border border-white/[0.09] flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-zinc-300" />
                     </div>
                   </div>
 
-                  <div className="mb-4">
+                  <div className="mb-5">
                     <div className="flex items-end gap-1.5">
-                      <span className={`text-4xl font-bold ${plan.highlight ? "text-white" : "text-slate-900"}`}>
-                        ${plan.price}
-                      </span>
-                      <span className={`text-sm pb-1 ${plan.highlight ? "text-slate-400" : "text-slate-500"}`}>
-                        AUD / {plan.period}
-                      </span>
+                      <span className="text-4xl font-bold text-white">${plan.price}</span>
+                      <span className="text-sm text-zinc-600 pb-1">AUD / {plan.period}</span>
                     </div>
-                    <p className={`text-sm mt-2 leading-relaxed ${plan.highlight ? "text-slate-400" : "text-slate-600"}`}>
-                      {plan.description}
-                    </p>
+                    <p className="text-sm text-zinc-500 mt-2 leading-relaxed">{plan.description}</p>
                   </div>
 
                   <Link
                     href={plan.href}
                     className={`w-full py-3 text-sm font-semibold rounded-xl text-center mb-6 transition-all ${
                       plan.highlight
-                        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/20"
-                        : "bg-slate-900 text-white hover:bg-slate-800"
+                        ? "bg-white text-black hover:bg-zinc-100"
+                        : "border border-white/[0.12] text-zinc-300 hover:border-white/25 hover:text-white"
                     }`}
                   >
                     {plan.cta}
@@ -144,11 +143,11 @@ export default function PricingPage() {
                     {plan.features.map((feature) => (
                       <li key={feature.label} className="flex items-center gap-2.5">
                         {feature.included ? (
-                          <CheckCircle className={`w-4 h-4 flex-shrink-0 ${plan.highlight ? "text-blue-400" : "text-emerald-500"}`} />
+                          <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-400" />
                         ) : (
-                          <XCircle className={`w-4 h-4 flex-shrink-0 ${plan.highlight ? "text-slate-600" : "text-slate-300"}`} />
+                          <XCircle className="w-4 h-4 flex-shrink-0 text-zinc-700" />
                         )}
-                        <span className={`text-sm ${feature.included ? (plan.highlight ? "text-slate-200" : "text-slate-700") : (plan.highlight ? "text-slate-600" : "text-slate-400")}`}>
+                        <span className={`text-sm ${feature.included ? "text-zinc-300" : "text-zinc-700"}`}>
                           {feature.label}
                         </span>
                       </li>
@@ -158,39 +157,26 @@ export default function PricingPage() {
               );
             })}
           </div>
-
-          <p className="text-center text-sm text-slate-500 mt-8">
+          <p className="text-center text-sm text-zinc-700 mt-8">
             All plans are one-time payments. No subscriptions, no recurring charges.
           </p>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-12 bg-white border-t border-slate-100">
+      <section className="section-mid py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-8 text-center">Pricing FAQ</h2>
-          <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-white mb-8 text-center">Pricing FAQ</h2>
+          <div className="space-y-3">
             {[
-              {
-                q: "Can I start without paying?",
-                a: "Yes — the Pathway Checker is fully free. You can check your eligibility across all pathways and see a full breakdown without creating an account.",
-              },
-              {
-                q: "Do I need to pay per country?",
-                a: "No. A Pro or Premium purchase covers all countries (Australia, UK, Canada, and Japan) for the duration of your application.",
-              },
-              {
-                q: "What if I have a complex situation?",
-                a: "Premium is designed for complex cases — multiple pathways, family applications, prior refusals, or situations involving more than one country.",
-              },
-              {
-                q: "Is there a refund policy?",
-                a: "Yes — if the tools are not useful for your situation, contact us within 7 days for a full refund. No questions asked.",
-              },
+              { q: "Can I start without paying?", a: "Yes — the Pathway Checker is fully free. You can check your eligibility across all pathways and see a full breakdown without creating an account." },
+              { q: "Do I need to pay per country?", a: "No. A Pro or Premium purchase covers all countries (Australia, UK, Canada, and Japan) for the duration of your application." },
+              { q: "What if I have a complex situation?", a: "Premium is designed for complex cases — multiple pathways, family applications, prior refusals, or situations involving more than one country." },
+              { q: "Is there a refund policy?", a: "Yes — if the tools are not useful for your situation, contact us within 7 days for a full refund. No questions asked." },
             ].map((faq, i) => (
-              <div key={i} className="rounded-xl border border-slate-200 p-5">
-                <h3 className="text-sm font-semibold text-slate-900 mb-2">{faq.q}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{faq.a}</p>
+              <div key={i} className="glass rounded-xl border border-white/[0.08] p-5">
+                <h3 className="text-sm font-semibold text-white mb-2">{faq.q}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{faq.a}</p>
               </div>
             ))}
           </div>
@@ -198,16 +184,20 @@ export default function PricingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-14 hero-gradient text-white text-center">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold mb-3">Start with the free pathway check</h2>
-          <p className="text-slate-300 text-sm mb-7">No account required. See all your options in under 3 minutes.</p>
+      <section className="relative overflow-hidden bg-black py-20 text-center">
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[300px] rounded-full opacity-[0.06]"
+            style={{ background: "radial-gradient(ellipse, rgba(200,220,255,1) 0%, transparent 70%)" }} />
+        </div>
+        <div className="relative max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold text-white mb-3">Start with the free pathway check</h2>
+          <p className="text-zinc-500 text-sm mb-7">No account required. See all your options in under 3 minutes.</p>
           <Link
             href="/au/pathways"
-            className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all shadow-lg shadow-blue-500/20"
+            className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold bg-white text-black rounded-xl hover:bg-zinc-100 transition-all group"
           >
             Check my pathways
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
       </section>
