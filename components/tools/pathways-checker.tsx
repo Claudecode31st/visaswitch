@@ -26,6 +26,7 @@ import {
   TrendingUp,
   Sparkles,
   Zap,
+  Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CountryData, VisaPathway, VisaCurrentOption, VisaGoalOption } from "@/types";
@@ -419,6 +420,40 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
     ? displayedPathways[0]
     : null;
 
+  // "You might have missed this" — pathways not shown in current filter but worth surfacing
+  const discoveryPathways = useMemo<Array<{ pathway: VisaPathway; reason: string }>>(() => {
+    if (!currentVisa) return [];
+
+    const displayedIds = new Set(displayedPathways.map(p => p.id));
+    const candidates: Array<{ pathway: VisaPathway; reason: string }> = [];
+
+    for (const p of countryData.pathways) {
+      if (displayedIds.has(p.id)) continue;
+      if (p.difficulty === "complex") continue;
+
+      // Case 1: pathway leads to PR and user's goal is "pr" or "stay"
+      if ((goal === "pr" || goal === "stay") && p.forGoals.includes("pr") && p.difficulty === "straightforward") {
+        candidates.push({ pathway: p, reason: `A straightforward route to ${p.pathwayTo.length > 0 ? p.pathwayTo[0] : "permanent residency"} you may not have considered.` });
+        continue;
+      }
+
+      // Case 2: one of the displayed pathways links to this one via pathwayTo
+      const bridgeSource = displayedPathways.find(dp => dp.pathwayTo.some(pt => pt.toLowerCase().includes(p.subclass ?? p.name.toLowerCase().slice(0, 6))));
+      if (bridgeSource) {
+        candidates.push({ pathway: p, reason: `${bridgeSource.name} can lead here — a natural next step for your profile.` });
+        continue;
+      }
+
+      // Case 3: it matches the user's goal but via a different current-visa route
+      const goalMatch = goal === "all" || p.forGoals.includes(goal as VisaPathway["forGoals"][number]);
+      if (goalMatch && p.difficulty === "straightforward") {
+        candidates.push({ pathway: p, reason: `This pathway also achieves your goal and is rated straightforward.` });
+      }
+    }
+
+    return candidates.slice(0, 3);
+  }, [currentVisa, goal, displayedPathways, countryData.pathways]);
+
   // Labels for the personalised summary
   const currentVisaLabel = countryData.currentVisaOptions.find((o) => o.value === currentVisa)?.label ?? currentVisa;
   const goalLabel = goal === "all" ? "" : (countryData.goalOptions.find((o) => o.value === goal)?.label ?? "");
@@ -651,6 +686,69 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                   />
                 ))}
               </div>
+
+              {/* "You might have missed this" discovery section */}
+              {discoveryPathways.length > 0 && (
+                <div className="mt-8 pt-8 border-t border-white/[0.06]">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">You might have missed this</h3>
+                      <p className="text-xs text-zinc-600">Alternative pathways worth exploring from your profile</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    {discoveryPathways.map(({ pathway, reason }) => {
+                      const diffConf = getDifficultyConfig(pathway.difficulty);
+                      return (
+                        <div
+                          key={pathway.id}
+                          className="glass rounded-2xl border border-white/[0.07] hover:border-white/[0.12] transition-all p-4 flex items-start gap-4"
+                        >
+                          {/* Icon */}
+                          <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0", pathway.iconBg)}>
+                            <Globe className={cn("w-4 h-4", pathway.iconColor)} />
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                              <span className="text-sm font-bold text-white">{pathway.name}</span>
+                              {pathway.subclass && (
+                                <span className="text-xs text-zinc-600 bg-white/[0.05] px-1.5 py-0.5 rounded-full">
+                                  Subclass {pathway.subclass}
+                                </span>
+                              )}
+                              <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full border", diffConf.color)}>
+                                {diffConf.label}
+                              </span>
+                            </div>
+                            <p className="text-xs text-zinc-500 mb-2 leading-relaxed">{reason}</p>
+                            <div className="flex items-center gap-3">
+                              <span className="flex items-center gap-1 text-xs text-zinc-600">
+                                <Clock className="w-3 h-3" />{pathway.processingTime}
+                              </span>
+                              <span className="flex items-center gap-1 text-xs text-zinc-600">
+                                <DollarSign className="w-3 h-3" />{pathway.cost}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* CTA */}
+                          <Link
+                            href={`/${countryCode}/planner?pathway=${pathway.id}`}
+                            className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-white border border-white/[0.08] hover:border-white/[0.20] px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            Explore <ArrowRight className="w-3 h-3" />
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
