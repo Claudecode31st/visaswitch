@@ -335,7 +335,7 @@ function Step1FindPathway({
   const hasResults = currentVisa && displayedPathways.length > 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Section header */}
       <div>
         <h2 className="text-xl font-bold text-white mb-1">Find Your Pathway</h2>
@@ -435,7 +435,7 @@ function Step1FindPathway({
 
       {/* Results */}
       {hasResults && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Best match card */}
           {bestMatchPathway && (
             <BestMatchCard
@@ -457,7 +457,7 @@ function Step1FindPathway({
                   {secondaryPathways.length !== 1 ? "s" : ""}
                 </span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {secondaryPathways.map((pw) => (
                   <SecondaryCard
                     key={pw.id}
@@ -526,9 +526,9 @@ function BestMatchCard({
         </span>
       </div>
 
-      <div className="px-6 pt-6 pb-5">
+      <div className="px-7 pt-7 pb-6">
         {/* Name */}
-        <div className="flex items-start gap-4 mb-5">
+        <div className="flex items-start gap-4 mb-6">
           <div
             className={cn(
               "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0",
@@ -559,13 +559,13 @@ function BestMatchCard({
             return (
               <div
                 key={stat.label}
-                className="bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-2.5"
+                className="bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-3"
               >
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Icon className="w-3 h-3 text-zinc-500" />
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Icon className="w-3 h-3 text-zinc-500 flex-shrink-0" />
                   <span className="text-xs text-zinc-500">{stat.label}</span>
                 </div>
-                <span className="text-sm font-bold text-white">{stat.value}</span>
+                <span className="text-xs font-bold text-white leading-snug block">{stat.value}</span>
               </div>
             );
           })}
@@ -762,17 +762,17 @@ function SecondaryCard({
           : "bg-white/[0.03] border-white/[0.08] hover:bg-white/[0.05] hover:border-white/[0.12]"
       )}
     >
-      <button onClick={onToggle} className="w-full p-4 flex items-center gap-3 text-left">
+      <button onClick={onToggle} className="w-full p-5 flex items-center gap-4 text-left">
         <div
           className={cn(
-            "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0",
+            "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0",
             pathway.iconBg
           )}
         >
           <Globe className={cn("w-4 h-4", pathway.iconColor)} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+          <div className="flex flex-wrap items-center gap-1.5 mb-1">
             {pathway.subclass && (
               <span className="text-xs text-zinc-400 bg-white/[0.05] px-1.5 py-0.5 rounded-full">
                 Subclass {pathway.subclass}
@@ -787,32 +787,32 @@ function SecondaryCard({
               </span>
             )}
           </div>
-          <div className="text-sm font-bold text-white">{pathway.name}</div>
-          <div className="text-xs text-zinc-500 mt-0.5">{pathway.tagline}</div>
+          <div className="text-sm font-bold text-white leading-snug">{pathway.name}</div>
+          <div className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{pathway.tagline}</div>
         </div>
-        <div className="flex items-center gap-3 flex-shrink-0 ml-2">
-          <div className="hidden sm:flex items-center gap-3 text-xs text-zinc-500">
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3" />
+        <div className="flex items-center gap-4 flex-shrink-0 ml-auto pl-2">
+          <div className="hidden lg:flex flex-col items-end gap-1 text-xs text-zinc-500">
+            <span className="flex items-center gap-1 whitespace-nowrap">
+              <Clock className="w-3 h-3 flex-shrink-0" />
               {pathway.processingTime}
             </span>
-            <span className="flex items-center gap-1">
-              <DollarSign className="w-3 h-3" />
+            <span className="flex items-center gap-1 whitespace-nowrap">
+              <DollarSign className="w-3 h-3 flex-shrink-0" />
               {pathway.cost}
             </span>
           </div>
           {expanded ? (
-            <ChevronUp className="w-4 h-4 text-zinc-500" />
+            <ChevronUp className="w-4 h-4 text-zinc-500 flex-shrink-0" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-zinc-500" />
+            <ChevronDown className="w-4 h-4 text-zinc-500 flex-shrink-0" />
           )}
         </div>
       </button>
 
       {expanded && (
-        <div className="border-t border-white/[0.07] px-5 py-4 space-y-4">
+        <div className="border-t border-white/[0.07] px-6 py-5 space-y-5">
           {/* How to apply */}
-          <ol className="space-y-2">
+          <ol className="space-y-3">
             {steps.map((s, i) => (
               <li key={i} className="flex items-start gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-white/[0.08] border border-white/[0.12] text-zinc-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -936,7 +936,7 @@ function Step2CheckReadiness({
   const canContinue = answeredCount >= Math.ceil(totalFactors * 0.5);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Section header */}
       <div>
         <h2 className="text-xl font-bold text-white mb-1">Check Your Readiness</h2>
@@ -1205,7 +1205,7 @@ function Step3BuildPlan({
   const canContinue = completedCount >= Math.ceil(totalCount * 0.3) || completedCount >= 3;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Section header */}
       <div>
         <h2 className="text-xl font-bold text-white mb-1">Build Your Plan</h2>
@@ -1504,7 +1504,7 @@ function Step4TrackSubmit({
   const oc = outcome ? outcomeConfig[outcome] : null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Section header */}
       <div>
         <h2 className="text-xl font-bold text-white mb-1">Track Your Application</h2>
@@ -1841,7 +1841,7 @@ export function VisaGuide({ countryData, countryCode }: Props) {
     <div className="min-h-screen bg-black">
       {/* Hero */}
       <div className="hero-gradient">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-sm text-zinc-500 mb-6">
             <Link href="/" className="hover:text-white transition-colors">
@@ -1885,8 +1885,8 @@ export function VisaGuide({ countryData, countryCode }: Props) {
       </div>
 
       {/* Step content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="grid lg:grid-cols-[1fr_280px] gap-8 items-start">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid lg:grid-cols-[1fr_300px] gap-10 items-start">
           {/* Main content */}
           <div>
             {state.step === 1 && (
