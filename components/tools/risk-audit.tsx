@@ -227,6 +227,16 @@ export function RiskAudit({ countryData, countryCode }: Props) {
               </p>
             </div>
 
+            {/* No-pathway nudge */}
+            {!selectedPathway && (
+              <div className="flex items-start gap-2.5 bg-amber-500/[0.07] border border-amber-500/[0.20] rounded-xl px-4 py-3">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-300/90 leading-relaxed">
+                  <span className="font-semibold">Select a visa pathway above</span> to see factors specific to that application — or continue with the general audit below.
+                </p>
+              </div>
+            )}
+
             {/* Risk factors */}
             {filteredRiskFactors.map((factor, index) => {
               const answer = factorResults.get(factor.id);
@@ -400,7 +410,7 @@ export function RiskAudit({ countryData, countryCode }: Props) {
                     <h4 className="text-xs font-bold text-white">
                       Fix {topFixes.length} issue{topFixes.length > 1 ? "s" : ""} → score{" "}
                       <span className="text-zinc-400">{overallScore}</span>
-                      <ArrowRight className="w-3 h-3 inline mx-1 text-zinc-600" />
+                      <ArrowRight className="w-3 h-3 inline mx-1 text-zinc-500" />
                       <span style={{ color: potentialScore !== null && potentialScore >= 75 ? "#34d399" : potentialScore !== null && potentialScore >= 50 ? "#fbbf24" : "#fb923c" }}>
                         {potentialScore ?? overallScore}
                       </span>
