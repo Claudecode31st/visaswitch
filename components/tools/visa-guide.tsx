@@ -1921,7 +1921,7 @@ export function VisaGuide({ countryData, countryCode }: Props) {
               {countryData.name}
             </Link>
             <ChevronRight className="w-4 h-4" />
-            <span className="text-white">Visa Guide</span>
+            <span className="text-white">Guide</span>
           </div>
 
           {/* Title */}
