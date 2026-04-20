@@ -397,6 +397,16 @@ function Step1FindPathway({
         </div>
       </div>
 
+      {/* Result count summary */}
+      {hasResults && (
+        <p className="text-xs text-zinc-500">
+          Showing <span className="text-white font-semibold">{displayedPathways.length}</span> of {countryData.pathways.length} pathways relevant to your selection
+          {goal !== "all" && (
+            <> — filtered by goal</>
+          )}
+        </p>
+      )}
+
       {/* No visa selected placeholder */}
       {!currentVisa && (
         <div className="py-14 text-center">
@@ -407,8 +417,8 @@ function Step1FindPathway({
             Select your current visa to begin
           </h3>
           <p className="text-sm text-zinc-500 max-w-md mx-auto">
-            We&apos;ll instantly rank {countryData.pathways.length} pathways and show you
-            the best match for your situation.
+            We&apos;ll filter {countryData.pathways.length} pathways down to the ones
+            relevant to your situation and rank them by best fit.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-3 max-w-sm mx-auto">
             {[
