@@ -72,8 +72,8 @@ const stats = [
 const features = [
   {
     icon: Zap,
-    title: "One flow, not four tools",
-    description: "Pathway finder, eligibility check, risk audit, checklist, and application tracker — unified into a single guided journey that saves your progress.",
+    title: "One flow, start to approval",
+    description: "Everything you need — pathway matching, eligibility, risk scoring, checklist, and application tracking — unified in a single guided journey that saves your progress.",
   },
   {
     icon: FileCheck,
