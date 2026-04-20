@@ -14,7 +14,7 @@ const countryMeta: Record<string, { abbr: string; tagline: string; color: string
   au: { abbr: "AU", tagline: "14 pathways · Home Affairs", color: "bg-blue-500/15 text-blue-300 border border-blue-500/25" },
   uk: { abbr: "UK", tagline: "8 pathways · UKVI", color: "bg-violet-500/15 text-violet-300 border border-violet-500/25" },
   ca: { abbr: "CA", tagline: "9 pathways · IRCC", color: "bg-red-500/15 text-red-300 border border-red-500/25" },
-  jp: { abbr: "JP", tagline: "8 pathways · Immigration Bureau", color: "bg-rose-500/15 text-rose-300 border border-rose-500/25" },
+  jp: { abbr: "JP", tagline: "8 pathways · Immigration Bureau", color: "bg-amber-500/15 text-amber-300 border border-amber-500/25" },
 };
 
 export function Navbar() {
