@@ -930,7 +930,8 @@ function Step2CheckReadiness({
     for (const f of relevantFactors) {
       const ans = riskAnswers[f.id];
       if (!ans) continue;
-      const scoreMap = { yes: 100, partial: 50, no: 0 };
+      // Risk factors are problems — "yes" means you HAVE the risk (bad), "no" means you're clear (good)
+      const scoreMap = { yes: 0, partial: 50, no: 100 };
       total += scoreMap[ans] * f.weight;
       weight += f.weight;
     }
@@ -1070,10 +1071,10 @@ function Step2CheckReadiness({
                           "px-4 py-1.5 rounded-lg text-xs font-bold border transition-all",
                           ans === opt
                             ? opt === "yes"
-                              ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
+                              ? "bg-red-500/20 border-red-500/50 text-red-300"        // yes = risk present = bad
                               : opt === "partial"
-                              ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
-                              : "bg-red-500/20 border-red-500/50 text-red-300"
+                              ? "bg-amber-500/20 border-amber-500/50 text-amber-300"  // partial = moderate
+                              : "bg-emerald-500/20 border-emerald-500/50 text-emerald-300" // no = clear = good
                             : "bg-white/[0.04] border-white/[0.10] text-zinc-400 hover:border-white/25 hover:text-white"
                         )}
                       >
@@ -1083,7 +1084,10 @@ function Step2CheckReadiness({
                   </div>
                   {ans && (
                     <p className="text-xs text-zinc-500 mt-2 leading-relaxed">
-                      {ans === "no" || ans === "partial" ? factor.mitigation : factor.description}
+                      {ans === "yes" || ans === "partial"
+                        ? factor.mitigation   // you have this risk — show how to fix it
+                        : factor.description  // you're clear — confirm why this is fine
+                      }
                     </p>
                   )}
                 </div>
