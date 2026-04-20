@@ -29,10 +29,10 @@ const countryMeta: Record<string, { abbr: string; tagline: string; pathways: str
 };
 
 const countryColors: Record<string, { badge: string; border: string; glow: string }> = {
-  au: { badge: "bg-blue-500/15 text-blue-300 border border-blue-500/20", border: "rgba(59,130,246,0.15)", glow: "rgba(59,130,246,0.06)" },
-  uk: { badge: "bg-rose-500/15 text-rose-300 border border-rose-500/20", border: "rgba(244,63,94,0.15)", glow: "rgba(244,63,94,0.06)" },
-  ca: { badge: "bg-red-500/15 text-red-300 border border-red-500/20", border: "rgba(239,68,68,0.15)", glow: "rgba(239,68,68,0.06)" },
-  jp: { badge: "bg-zinc-600/30 text-zinc-300 border border-zinc-500/25", border: "rgba(161,161,170,0.15)", glow: "rgba(161,161,170,0.05)" },
+  au: { badge: "bg-blue-500/15 text-blue-300 border border-blue-500/25",   border: "rgba(59,130,246,0.18)",  glow: "rgba(59,130,246,0.06)" },
+  uk: { badge: "bg-violet-500/15 text-violet-300 border border-violet-500/25", border: "rgba(139,92,246,0.18)", glow: "rgba(139,92,246,0.06)" },
+  ca: { badge: "bg-red-500/15 text-red-300 border border-red-500/25",      border: "rgba(239,68,68,0.18)",   glow: "rgba(239,68,68,0.06)" },
+  jp: { badge: "bg-rose-500/15 text-rose-300 border border-rose-500/25",   border: "rgba(244,63,94,0.18)",   glow: "rgba(244,63,94,0.06)" },
 };
 
 const guideSteps = [
