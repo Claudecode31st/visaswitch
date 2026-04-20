@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useActivePathway } from "@/hooks/use-active-pathway";
 import { ActivePathwayBanner } from "@/components/tools/active-pathway-banner";
@@ -22,10 +22,7 @@ import {
   ChevronUp,
   ExternalLink,
   Shield,
-  FileCheck,
-  TrendingUp,
   Sparkles,
-  Zap,
   Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,118 +33,12 @@ interface Props {
   countryCode: string;
 }
 
-// ── Personalised Summary Banner ──────────────────────────────────────────────
-function PersonalisedSummary({
-  currentVisaLabel,
-  goalLabel,
-  displayedPathways,
-  rankedPathwayIds,
-  bestMatch,
-  countryName,
-}: {
-  currentVisaLabel: string;
-  goalLabel: string;
-  displayedPathways: VisaPathway[];
-  rankedPathwayIds: string[];
-  bestMatch: VisaPathway | null;
-  countryName: string;
-}) {
-  const total = displayedPathways.length;
-  const rankedCount = displayedPathways.filter((p) => rankedPathwayIds.includes(p.id)).length;
-  const straightforwardCount = displayedPathways.filter((p) => p.difficulty === "straightforward").length;
-  const moderateCount = displayedPathways.filter((p) => p.difficulty === "moderate").length;
-
-  if (total === 0) return null;
-
-  // Headline — most specific when we have a ranked best match
-  const headline = bestMatch && rankedCount > 0
-    ? `${total} pathway${total !== 1 ? "s" : ""} matched — your strongest option is ${bestMatch.name}.`
-    : `${total} pathway${total !== 1 ? "s" : ""} available from your current status.`;
-
-  // Context sentence — personalized to the combination
-  let context: string;
-  if (straightforwardCount > 0 && bestMatch) {
-    context = `${straightforwardCount === 1 ? "One pathway is straightforward" : `${straightforwardCount} pathways are straightforward`} from your situation${goalLabel ? ` with a goal to ${goalLabel.toLowerCase()}` : ""}. ${bestMatch.tagline}.`;
-  } else if (bestMatch) {
-    context = `Based on your ${currentVisaLabel} status${goalLabel ? ` and goal to ${goalLabel.toLowerCase()}` : ""}, ${bestMatch.name} aligns best with your profile. ${bestMatch.tagline}.`;
-  } else {
-    context = `These pathways accept applications from ${currentVisaLabel} holders in ${countryName}. Expand any card for full details, pros and cons.`;
-  }
-
-  // Discovery insight — surface a hidden angle if there's a moderately-ranked path
-  const hiddenGem = rankedCount > 1 ? displayedPathways.find(
-    (p, i) => i > 0 && rankedPathwayIds.includes(p.id) && p.difficulty !== "complex"
-  ) : null;
-
-  return (
-    <div className="rounded-2xl border border-white/[0.13] bg-white/[0.03] p-5 mb-6 relative overflow-hidden">
-      {/* Top shimmer line */}
-      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-
-      <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-white/[0.07] border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Sparkles className="w-4 h-4 text-zinc-300" />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Your analysis</div>
-
-          <p className="text-sm font-semibold text-white leading-snug mb-1.5">{headline}</p>
-          <p className="text-xs text-zinc-500 leading-relaxed mb-4">{context}</p>
-
-          {/* Quick stats chips */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-300 bg-white/[0.06] border border-white/[0.09] px-2.5 py-1 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
-              {total} matched
-            </span>
-            {straightforwardCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                {straightforwardCount} straightforward
-              </span>
-            )}
-            {moderateCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                {moderateCount} moderate
-              </span>
-            )}
-            {bestMatch && (
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-400 bg-white/[0.05] border border-white/[0.08] px-2.5 py-1 rounded-full">
-                <Clock className="w-3 h-3" />
-                Best match: {bestMatch.processingTime}
-              </span>
-            )}
-          </div>
-
-          {/* Hidden gem insight */}
-          {hiddenGem && (
-            <div className="flex items-start gap-2 bg-white/[0.03] border border-white/[0.07] rounded-xl px-3.5 py-3">
-              <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                <span className="font-semibold text-zinc-300">Worth exploring: </span>
-                {hiddenGem.name} — {hiddenGem.tagline}. It&apos;s ranked #2 for your profile and is{" "}
-                <span className="font-semibold text-amber-400">{hiddenGem.difficulty}</span> difficulty.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function getDifficultyConfig(difficulty: VisaPathway["difficulty"]) {
   return {
     straightforward: { label: "Straightforward", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
     moderate: { label: "Moderate", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
     complex: { label: "Complex", color: "text-red-400 bg-red-500/10 border-red-500/20" },
   }[difficulty];
-}
-
-function getDifficultyStars(difficulty: VisaPathway["difficulty"]) {
-  return { straightforward: 1, moderate: 2, complex: 3 }[difficulty];
 }
 
 function PathwayCard({
@@ -164,7 +55,6 @@ function PathwayCard({
   countryCode: string;
 }) {
   const difficulty = getDifficultyConfig(pathway.difficulty);
-  const stars = getDifficultyStars(pathway.difficulty);
 
   return (
     <div
@@ -192,7 +82,7 @@ function PathwayCard({
                 </span>
               )}
               {pathway.subclass && (
-                <span className="text-xs font-semibold text-zinc-600 bg-white/[0.05] px-2 py-0.5 rounded-full">
+                <span className="text-xs font-semibold text-zinc-400 bg-white/[0.05] px-2 py-0.5 rounded-full">
                   Subclass {pathway.subclass}
                 </span>
               )}
@@ -208,15 +98,6 @@ function PathwayCard({
             <h3 className="text-sm font-bold text-white">{pathway.name}</h3>
             <p className="text-xs text-zinc-500 mt-0.5">{pathway.tagline}</p>
           </div>
-          {/* Complexity stars: 1=straightforward, 2=moderate, 3=complex */}
-          <div className="flex gap-0.5 flex-shrink-0 mt-1" title={`Complexity: ${pathway.difficulty}`}>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <Star
-                key={i}
-                className={cn("w-3 h-3", i < stars ? "fill-rose-400 text-rose-400" : "text-zinc-800")}
-              />
-            ))}
-          </div>
         </div>
 
         {/* Stat pills */}
@@ -229,7 +110,7 @@ function PathwayCard({
             const Icon = stat.icon;
             return (
               <div key={i} className="bg-white/[0.05] rounded-lg px-2.5 py-2 flex items-center gap-1.5 min-w-0">
-                <Icon className="w-3 h-3 text-zinc-600 flex-shrink-0" />
+                <Icon className="w-3 h-3 text-zinc-400 flex-shrink-0" />
                 <span className="text-xs text-zinc-500 truncate">{stat.label}</span>
               </div>
             );
@@ -244,7 +125,7 @@ function PathwayCard({
           </div>
         )}
 
-        {/* Expandable section */}
+        {/* Expand toggle */}
         <button
           onClick={onToggle}
           className="w-full flex items-center justify-between text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-colors mt-1"
@@ -280,7 +161,7 @@ function PathwayCard({
                         <span className="text-xs font-semibold text-white">{s.action}</span>
                       )}
                       {s.duration && (
-                        <span className="text-xs text-zinc-600 bg-white/[0.04] px-1.5 py-0.5 rounded-full border border-white/[0.06]">
+                        <span className="text-xs text-zinc-400 bg-white/[0.04] px-1.5 py-0.5 rounded-full border border-white/[0.06]">
                           {s.duration}
                         </span>
                       )}
@@ -302,7 +183,7 @@ function PathwayCard({
                     "inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border",
                     req.required
                       ? "text-zinc-300 bg-white/[0.05] border-white/[0.10]"
-                      : "text-zinc-600 bg-transparent border-white/[0.05]"
+                      : "text-zinc-400 bg-transparent border-white/[0.05]"
                   )}>
                     {req.required ? <CheckCircle className="w-3 h-3 text-emerald-400 flex-shrink-0" /> : <div className="w-3 h-3" />}
                     {req.label}
@@ -451,6 +332,14 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
     ? displayedPathways[0]
     : null;
 
+  // Auto-expand best match when visa selection changes
+  useEffect(() => {
+    if (bestMatchPathway) {
+      setExpandedIds((prev) => new Set([...prev, bestMatchPathway.id]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentVisa]);
+
   // "You might have missed this" — pathways not shown in current filter but worth surfacing
   const discoveryPathways = useMemo<Array<{ pathway: VisaPathway; reason: string }>>(() => {
     if (!currentVisa) return [];
@@ -475,7 +364,7 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
         continue;
       }
 
-      // Case 3: it matches the user's goal but via a different current-visa route
+      // Case 3: matches goal via a different route and is straightforward
       const goalMatch = goal === "all" || p.forGoals.includes(goal as VisaPathway["forGoals"][number]);
       if (goalMatch && p.difficulty === "straightforward") {
         candidates.push({ pathway: p, reason: `This pathway also achieves your goal and is rated straightforward.` });
@@ -485,37 +374,27 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
     return candidates.slice(0, 3);
   }, [currentVisa, goal, displayedPathways, countryData.pathways]);
 
-  // Labels for the personalised summary
-  const currentVisaLabel = countryData.currentVisaOptions.find((o) => o.value === currentVisa)?.label ?? currentVisa;
-  const goalLabel = goal === "all" ? "" : (countryData.goalOptions.find((o) => o.value === goal)?.label ?? "");
-
   const relatedTools = [
     {
       icon: ListChecks,
       title: "Checklist & Timeline",
-      description: "Generate a step-by-step plan with document checklists and key deadlines — pathway-specific items loaded automatically.",
-      outcomes: ["Full document checklist", "Milestone timeline with deadlines"],
+      shortDesc: "Step-by-step plan with documents and deadlines",
       href: bestMatchPathway ? `/${countryCode}/planner?pathway=${bestMatchPathway.id}` : `/${countryCode}/planner`,
       iconColor: "bg-indigo-500/15 text-indigo-400",
-      ctaColor: "text-indigo-400 hover:text-indigo-300",
     },
     {
       icon: BarChart3,
       title: "Pre-lodgement Risk Audit",
-      description: "Score your profile across all key risk criteria and surface the specific weak points before you submit.",
-      outcomes: ["Risk score across key criteria", "Prioritised list of improvements"],
+      shortDesc: "Score your profile and fix weak spots before you apply",
       href: bestMatchPathway ? `/${countryCode}/audit?pathway=${bestMatchPathway.id}` : `/${countryCode}/audit`,
       iconColor: "bg-violet-500/15 text-violet-400",
-      ctaColor: "text-violet-400 hover:text-violet-300",
     },
     {
       icon: RefreshCw,
       title: "Refusal Recovery",
-      description: "Received a refusal? Identify the exact reasons and build the strongest case for your reapplication or appeal.",
-      outcomes: ["Root cause analysis", "Reapplication strategy & evidence plan"],
+      shortDesc: "Diagnose your refusal and build a stronger reapplication",
       href: bestMatchPathway ? `/${countryCode}/recovery?pathway=${bestMatchPathway.id}` : `/${countryCode}/recovery`,
       iconColor: "bg-rose-500/15 text-rose-400",
-      ctaColor: "text-rose-400 hover:text-rose-300",
     },
   ];
 
@@ -524,7 +403,8 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
       {loaded && active && (
         <ActivePathwayBanner active={active} currentTool="pathways" onClear={clear} />
       )}
-      {/* Hero */}
+
+      {/* Hero + Filter */}
       <div className="hero-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex items-center gap-1.5 text-sm text-zinc-500 mb-4">
@@ -543,7 +423,7 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
               <h1 className="text-2xl font-bold text-white">Visa Pathway Checker</h1>
             </div>
             <p className="text-zinc-400 text-sm leading-relaxed">
-              Select your current visa status and your goal — we'll surface the most relevant {countryData.name} pathways instantly.
+              Select your current visa and goal — we&apos;ll rank the most relevant {countryData.name} pathways for your situation.
             </p>
           </div>
 
@@ -615,6 +495,7 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                       </div>
                     </button>
                   ))}
+                  {/* No preference option */}
                   <button
                     onClick={() => setGoal("all")}
                     className={cn(
@@ -630,7 +511,7 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                     )} />
                     <div className="min-w-0">
                       <div className={cn("text-sm font-semibold", goal === "all" ? "text-black" : "text-white")}>
-                        Show all options
+                        No preference — show all
                       </div>
                       <div className={cn("text-xs", goal === "all" ? "text-zinc-600" : "text-zinc-400")}>
                         All pathways for my visa status
@@ -665,36 +546,43 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
 
             {/* Pathway results — 2/3 width */}
             <div className="lg:col-span-2">
-              {/* No filter — plain heading */}
+
+              {/* No visa selected — nudge prompt */}
               {!currentVisa && (
-                <div className="mb-5 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-white">
-                    All {countryData.name} pathways
-                  </h2>
-                  <span className="text-sm text-zinc-500">{displayedPathways.length} pathways</span>
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.09] mb-6">
+                  <Lightbulb className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-zinc-400 leading-relaxed">
+                    <span className="font-semibold text-white">Select your current visa</span> above for personalised, ranked results.{" "}
+                    Browsing all <span className="font-semibold text-white">{displayedPathways.length} pathways</span> below.
+                  </p>
                 </div>
               )}
 
-              {/* Filter active — personalised summary banner */}
+              {/* Filter active — compact result summary */}
               {currentVisa && displayedPathways.length > 0 && (
-                <PersonalisedSummary
-                  currentVisaLabel={currentVisaLabel}
-                  goalLabel={goalLabel}
-                  displayedPathways={displayedPathways}
-                  rankedPathwayIds={rankedPathwayIds}
-                  bestMatch={bestMatchPathway}
-                  countryName={countryData.name}
-                />
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.04] border border-white/[0.09] mb-5">
+                  <Sparkles className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-semibold text-white">
+                      {displayedPathways.length} pathway{displayedPathways.length !== 1 ? "s" : ""} found
+                      {bestMatchPathway && <> — best match is <span className="text-zinc-300">{bestMatchPathway.name}</span></>}
+                    </p>
+                    {bestMatchPathway && (
+                      <p className="text-xs text-zinc-500 mt-0.5">{bestMatchPathway.tagline}</p>
+                    )}
+                  </div>
+                </div>
               )}
 
+              {/* No results */}
               {currentVisa && displayedPathways.length === 0 && (
                 <div className="glass rounded-2xl border border-white/[0.08] p-8 text-center">
                   <div className="w-12 h-12 bg-white/[0.06] rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <Globe className="w-6 h-6 text-zinc-600" />
+                    <Globe className="w-6 h-6 text-zinc-500" />
                   </div>
                   <h3 className="text-sm font-bold text-white mb-1">No direct pathways found</h3>
                   <p className="text-xs text-zinc-500 mb-4">
-                    Try selecting &quot;Show all options&quot; or a different goal to see more pathways.
+                    Try switching to &quot;No preference — show all&quot; or a different goal.
                   </p>
                   <button
                     onClick={() => setGoal("all")}
@@ -705,6 +593,7 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                 </div>
               )}
 
+              {/* Pathway cards */}
               <div className="space-y-4">
                 {displayedPathways.map((pathway, index) => (
                   <PathwayCard
@@ -727,7 +616,7 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-white">You might have missed this</h3>
-                      <p className="text-xs text-zinc-600">Alternative pathways worth exploring from your profile</p>
+                      <p className="text-xs text-zinc-400">Alternative pathways worth exploring from your profile</p>
                     </div>
                   </div>
                   <div className="space-y-3">
@@ -738,17 +627,15 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                           key={pathway.id}
                           className="glass rounded-2xl border border-white/[0.07] hover:border-white/[0.12] transition-all p-4 flex items-start gap-4"
                         >
-                          {/* Icon */}
                           <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0", pathway.iconBg)}>
                             <Globe className={cn("w-4 h-4", pathway.iconColor)} />
                           </div>
 
-                          {/* Content */}
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-wrap items-center gap-1.5 mb-1">
                               <span className="text-sm font-bold text-white">{pathway.name}</span>
                               {pathway.subclass && (
-                                <span className="text-xs text-zinc-600 bg-white/[0.05] px-1.5 py-0.5 rounded-full">
+                                <span className="text-xs text-zinc-400 bg-white/[0.05] px-1.5 py-0.5 rounded-full">
                                   Subclass {pathway.subclass}
                                 </span>
                               )}
@@ -758,16 +645,15 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                             </div>
                             <p className="text-xs text-zinc-500 mb-2 leading-relaxed">{reason}</p>
                             <div className="flex items-center gap-3">
-                              <span className="flex items-center gap-1 text-xs text-zinc-600">
+                              <span className="flex items-center gap-1 text-xs text-zinc-400">
                                 <Clock className="w-3 h-3" />{pathway.processingTime}
                               </span>
-                              <span className="flex items-center gap-1 text-xs text-zinc-600">
+                              <span className="flex items-center gap-1 text-xs text-zinc-400">
                                 <DollarSign className="w-3 h-3" />{pathway.cost}
                               </span>
                             </div>
                           </div>
 
-                          {/* CTA */}
                           <Link
                             href={`/${countryCode}/planner?pathway=${pathway.id}`}
                             className="flex-shrink-0 flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-white border border-white/[0.08] hover:border-white/[0.20] px-3 py-1.5 rounded-lg transition-all"
@@ -785,141 +671,41 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
             {/* Sidebar */}
             <div className="flex flex-col gap-5">
 
-              {/* What to do next — contextual prompt */}
-              <div className="glass border border-white/[0.10] rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-zinc-500" />
-                  <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Your next step</span>
-                </div>
-                <p className="text-sm font-semibold text-white mb-1">
-                  {currentVisa
-                    ? `${displayedPathways.length} pathway${displayedPathways.length !== 1 ? "s" : ""} matched`
-                    : "Start by filtering above"}
-                </p>
-                <p className="text-xs text-zinc-500 leading-relaxed">
-                  {currentVisa
-                    ? "Expand any pathway for full pros, cons, next steps and an application plan."
-                    : "Select your current visa and your goal to see personalised, ranked results."}
-                </p>
-              </div>
-
-              {/* Investment snapshot — only when best match has cost data */}
-              {bestMatchPathway && bestMatchPathway.costNumeric && (
-                <div className="glass rounded-2xl border border-white/[0.08] p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <DollarSign className="w-4 h-4 text-emerald-400" />
-                    <h3 className="text-sm font-bold text-white">Investment snapshot</h3>
-                  </div>
-                  <p className="text-xs text-zinc-600 mb-3">
-                    Estimated cost for <span className="text-zinc-400 font-medium">{bestMatchPathway.name}</span>
-                  </p>
-
-                  {/* VAC row */}
-                  <div className="flex items-center justify-between py-2 border-b border-white/[0.06]">
-                    <span className="text-xs text-zinc-500">Application fee (VAC)</span>
-                    <span className="text-xs font-bold text-white">{bestMatchPathway.cost}</span>
-                  </div>
-
-                  {/* Key extra costs for this pathway */}
-                  {countryData.checklist
-                    .filter(item =>
-                      item.estimatedCostNumeric &&
-                      item.estimatedCostNumeric > 0 &&
-                      (
-                        !item.pathwayIds ||
-                        item.pathwayIds.length === 0 ||
-                        item.pathwayIds.includes(bestMatchPathway.id)
-                      )
-                    )
-                    .slice(0, 4)
-                    .map(item => (
-                      <div key={item.id} className="flex items-center justify-between py-2 border-b border-white/[0.04]">
-                        <span className="text-xs text-zinc-600 truncate flex-1 mr-2">{item.title}</span>
-                        <span className="text-xs font-semibold text-zinc-400 flex-shrink-0">{item.estimatedCost}</span>
-                      </div>
-                    ))
-                  }
-
-                  {/* Total */}
-                  {(() => {
-                    const extraTotal = countryData.checklist
-                      .filter(item =>
-                        item.estimatedCostNumeric &&
-                        item.estimatedCostNumeric > 0 &&
-                        (!item.pathwayIds || item.pathwayIds.length === 0 || item.pathwayIds.includes(bestMatchPathway.id))
-                      )
-                      .reduce((sum, item) => sum + (item.estimatedCostNumeric ?? 0), 0);
-                    const grandTotal = (bestMatchPathway.costNumeric ?? 0) + extraTotal;
-                    return grandTotal > 0 ? (
-                      <div className="flex items-center justify-between pt-3 mt-1">
-                        <span className="text-xs font-bold text-zinc-400">Estimated total</span>
-                        <div className="text-right">
-                          <span className="text-sm font-bold text-white">AUD {grandTotal.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    ) : null;
-                  })()}
-
-                  <Link
-                    href={`/${countryCode}/planner?pathway=${bestMatchPathway.id}`}
-                    className="mt-4 flex items-center gap-1 text-xs font-semibold text-zinc-500 hover:text-white transition-colors"
-                  >
-                    Full breakdown in Planner <ArrowRight className="w-3 h-3" />
-                  </Link>
-                </div>
-              )}
-
-              {/* Related tools */}
+              {/* Continue with — compact tool links */}
               <div className="glass rounded-2xl border border-white/[0.08] p-5">
-                <h3 className="text-sm font-bold text-white mb-1">Related tools</h3>
+                <h3 className="text-sm font-bold text-white mb-1">Continue with</h3>
                 <p className="text-xs text-zinc-500 mb-4">
                   {bestMatchPathway
                     ? <>Pre-loaded for <span className="font-semibold text-zinc-300">{bestMatchPathway.name}</span></>
-                    : "Select a pathway above to pre-load these tools with your match."}
+                    : "Select a pathway to pre-load these tools with your match."}
                 </p>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {relatedTools.map((tool) => {
                     const Icon = tool.icon;
                     return (
-                      <div key={tool.title} className="group">
-                        <div className="flex items-start gap-3 mb-2">
-                          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5", tool.iconColor)}>
-                            <Icon className="w-4 h-4" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-bold text-zinc-200 mb-1">{tool.title}</h4>
-                            <p className="text-xs text-zinc-500 leading-relaxed">{tool.description}</p>
-                          </div>
+                      <Link
+                        key={tool.title}
+                        href={tool.href}
+                        className="flex items-center gap-3 w-full px-3.5 py-3 rounded-xl border border-white/[0.08] hover:border-white/[0.16] hover:bg-white/[0.04] transition-all group"
+                      >
+                        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0", tool.iconColor)}>
+                          <Icon className="w-4 h-4" />
                         </div>
-                        <div className="ml-11 space-y-1 mb-2.5">
-                          {tool.outcomes.map((o) => (
-                            <div key={o} className="flex items-center gap-1.5">
-                              <FileCheck className="w-3 h-3 text-zinc-700 flex-shrink-0" />
-                              <span className="text-xs text-zinc-600">{o}</span>
-                            </div>
-                          ))}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-zinc-200 group-hover:text-white transition-colors">{tool.title}</div>
+                          <div className="text-xs text-zinc-500">{tool.shortDesc}</div>
                         </div>
-                        <div className="ml-11">
-                          <Link
-                            href={tool.href}
-                            className={cn("inline-flex items-center gap-1 text-xs font-semibold transition-colors", tool.ctaColor)}
-                          >
-                            Open tool <ArrowRight className="w-3 h-3" />
-                          </Link>
-                        </div>
-                        {tool !== relatedTools[relatedTools.length - 1] && (
-                          <div className="border-t border-white/[0.06] mt-4" />
-                        )}
-                      </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-300 flex-shrink-0 transition-colors" />
+                      </Link>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Official resources */}
+              {/* Official source */}
               <div className="glass rounded-2xl border border-white/[0.08] p-5">
                 <div className="flex items-center gap-2 mb-3">
-                  <Shield className="w-4 h-4 text-zinc-600" />
+                  <Shield className="w-4 h-4 text-zinc-500" />
                   <h3 className="text-sm font-bold text-white">Official source</h3>
                 </div>
                 <p className="text-xs text-zinc-500 mb-3 leading-relaxed">
@@ -934,7 +720,7 @@ export function PathwaysChecker({ countryData, countryCode }: Props) {
                   <span className="text-xs font-semibold text-zinc-300 group-hover:text-white transition-colors">
                     {countryData.visaBodyName}
                   </span>
-                  <ExternalLink className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-300 flex-shrink-0 transition-colors" />
+                  <ExternalLink className="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-300 flex-shrink-0 transition-colors" />
                 </a>
               </div>
 
