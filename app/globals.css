@@ -104,3 +104,14 @@ body {
 .glow-subtle {
   box-shadow: 0 0 40px -8px rgba(150, 180, 220, 0.12);
 }
+
+/* ── Print / Report export ─────────────────────────────────────────────── */
+@media print {
+  body { background: #ffffff !important; color: #000000 !important; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  .print-break { page-break-before: always; }
+  .print-avoid-break { page-break-inside: avoid; }
+}
+
+.print-only { display: none; }

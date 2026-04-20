@@ -4,11 +4,12 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useActivePathway } from "@/hooks/use-active-pathway";
 import { ActivePathwayBanner } from "@/components/tools/active-pathway-banner";
+import { ReportModal } from "@/components/tools/report-modal";
 import {
   ListChecks, ChevronRight, CheckCircle, Circle, Clock, AlertCircle,
   CalendarDays, BarChart3, Info,
   ChevronDown, ChevronUp, Sparkles, Target, FileCheck, Shield,
-  LayoutList, GitBranch, DollarSign,
+  LayoutList, GitBranch, DollarSign, FileDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CountryData, ChecklistItem, VisaPathway } from "@/types";
@@ -74,6 +75,7 @@ export function TimelinePlanner({ countryData, countryCode }: Props) {
   const [completed, setCompleted] = useState<Set<string>>(new Set());
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "timeline">("list");
+  const [showReport, setShowReport] = useState<boolean>(false);
 
   const today = new Date();
   const targetDate = lodgementDate ? new Date(lodgementDate) : null;
@@ -241,18 +243,26 @@ export function TimelinePlanner({ countryData, countryCode }: Props) {
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div className="mt-5 max-w-lg">
-            <div className="flex items-center justify-between text-xs text-zinc-400 mb-1.5">
-              <span>{completedCount} of {totalTrackableItems} tasks completed</span>
-              <span className="font-semibold text-white">{progress}%</span>
+          {/* Progress + Generate report */}
+          <div className="mt-5 flex items-end justify-between gap-4">
+            <div className="flex-1 max-w-lg">
+              <div className="flex items-center justify-between text-xs text-zinc-400 mb-1.5">
+                <span>{completedCount} of {totalTrackableItems} tasks completed</span>
+                <span className="font-semibold text-white">{progress}%</span>
+              </div>
+              <div className="h-2 bg-white/[0.08] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-zinc-400 to-zinc-200 rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
-            <div className="h-2 bg-white/[0.08] rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-zinc-400 to-zinc-200 rounded-full transition-all duration-500"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+            <button
+              onClick={() => setShowReport(true)}
+              className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-white text-black text-xs font-bold rounded-xl hover:bg-zinc-100 transition-all"
+            >
+              <FileDown className="w-3.5 h-3.5" /> Generate report
+            </button>
           </div>
         </div>
       </div>
@@ -589,6 +599,21 @@ export function TimelinePlanner({ countryData, countryCode }: Props) {
           </p>
         </div>
       </div>
+
+      {/* Report modal */}
+      {showReport && (
+        <ReportModal
+          pathway={selectedPathwayData}
+          countryName={countryData.name}
+          countryCode={countryCode}
+          checklist={filteredChecklist}
+          completed={completed}
+          lodgementDate={lodgementDate}
+          totalEstimate={totalEstimate}
+          applicationFee={applicationFee}
+          onClose={() => setShowReport(false)}
+        />
+      )}
     </div>
   );
 }
