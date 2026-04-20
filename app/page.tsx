@@ -16,6 +16,8 @@ import {
   Lock,
   FileCheck,
   ChevronRight,
+  Shield,
+  SendHorizonal,
 } from "lucide-react";
 import { countryList } from "@/data";
 
@@ -33,44 +35,36 @@ const countryColors: Record<string, { badge: string; border: string; glow: strin
   jp: { badge: "bg-zinc-600/30 text-zinc-300 border border-zinc-500/25", border: "rgba(161,161,170,0.15)", glow: "rgba(161,161,170,0.05)" },
 };
 
-const tools = [
+const guideSteps = [
   {
     icon: Globe,
     step: "01",
-    title: "Pathway Checker",
-    description: "Input your current visa status and goals. Get every pathway you qualify for — ranked by difficulty, speed, and fit.",
-    cta: "Check my pathways",
-    href: "/au/pathways",
+    title: "Find Your Pathway",
+    description: "Select your current visa and goal. We instantly rank every pathway available to you — best match first, with full eligibility breakdown.",
+  },
+  {
+    icon: Shield,
+    step: "02",
+    title: "Check Your Readiness",
+    description: "Self-assess each eligibility requirement and answer a short risk questionnaire. Get a live risk score before you commit a dollar.",
   },
   {
     icon: ListChecks,
-    step: "02",
-    title: "Checklist & Timeline",
-    description: "A personalised, pathway-specific checklist with every document, deadline, and milestone — nothing generic.",
-    cta: "Build my plan",
-    href: "/au/planner",
-  },
-  {
-    icon: BarChart3,
     step: "03",
-    title: "Pre-lodgement Risk Audit",
-    description: "Score your application before you submit. Surface critical weaknesses, get priority fixes, and maximise your approval odds.",
-    cta: "Audit my application",
-    href: "/au/audit",
+    title: "Build Your Plan",
+    description: "A phased, pathway-specific checklist with every document, deadline, and cost — mapped to your target lodgement date.",
   },
   {
-    icon: RefreshCw,
+    icon: SendHorizonal,
     step: "04",
-    title: "Refusal Recovery",
-    description: "Received a refusal? Identify the exact reasons, understand their severity, and map the strongest path to overturning it.",
-    cta: "Recover from refusal",
-    href: "/au/recovery",
+    title: "Track & Submit",
+    description: "Update your application status as it progresses. If refused, the built-in recovery tool diagnoses why and maps your next move.",
   },
 ];
 
 const stats = [
   { value: "39", label: "Visa pathways mapped", sub: "AU · UK · CA · JP" },
-  { value: "4", label: "Countries covered", sub: "Official sources only" },
+  { value: "4", label: "Guide stages", sub: "Pathway → Approval" },
   { value: "Free", label: "To start", sub: "No credit card needed" },
   { value: "100%", label: "Browser-based", sub: "Nothing stored server-side" },
 ];
@@ -78,13 +72,13 @@ const stats = [
 const features = [
   {
     icon: Zap,
-    title: "Instant results, no waiting",
-    description: "Select your situation and see ranked visa pathways in seconds. No form submissions, no waiting for a consultant to reply.",
+    title: "One flow, not four tools",
+    description: "Pathway finder, eligibility check, risk audit, checklist, and application tracker — unified into a single guided journey that saves your progress.",
   },
   {
     icon: FileCheck,
     title: "Pathway-specific, not generic",
-    description: "Every checklist item, risk factor, and eligibility requirement is specific to your selected visa — not a copy-paste template.",
+    description: "Every checklist item, risk factor, and eligibility requirement is tailored to your selected visa — not a copy-paste template.",
   },
   {
     icon: Lock,
@@ -98,13 +92,13 @@ const features = [
   },
   {
     icon: TrendingUp,
-    title: "Connected, not siloed",
-    description: "Your pathway choice flows directly into the planner, the audit, and refusal recovery — the tools hand context to each other.",
+    title: "Progressive, not overwhelming",
+    description: "Each stage unlocks after you complete the previous one. You always know exactly where you are and what to do next.",
   },
   {
     icon: Users,
     title: "Built for real complexity",
-    description: "Multiple visas, prior refusals, expiring status, dependants — the tools are designed for situations that don't fit a simple box.",
+    description: "Multiple visas, prior refusals, expiring status, dependants — the guide is designed for situations that don't fit a simple box.",
   },
 ];
 
@@ -143,7 +137,7 @@ const faqs = [
   },
   {
     q: "Do I need to create an account?",
-    a: "No. All four tools work fully in your browser without an account. A free account unlocks saved progress, export features, and priority updates when rules change.",
+    a: "No. The complete visa guide works fully in your browser without an account. Your progress is saved to your device automatically.",
   },
   {
     q: "Which countries are covered?",
@@ -161,7 +155,7 @@ export default function HomePage() {
 
       {/* ── HERO ──────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-black min-h-screen flex items-center">
-        {/* Background: radial glow blobs */}
+        {/* Background glows */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="absolute top-[-15%] left-[10%] w-[700px] h-[700px] rounded-full opacity-[0.07]"
             style={{ background: "radial-gradient(circle, rgba(180,200,255,1) 0%, transparent 70%)" }} />
@@ -187,27 +181,28 @@ export default function HomePage() {
             <h1 className="text-5xl sm:text-6xl lg:text-[5rem] font-bold leading-[1.04] mb-7 tracking-tight text-white">
               Your visa journey,
               <br />
-              <span className="gradient-text">navigated precisely.</span>
+              <span className="gradient-text">step by step.</span>
             </h1>
 
             {/* Subheading */}
             <p className="text-lg sm:text-xl text-zinc-500 leading-relaxed mb-10 max-w-2xl mx-auto">
-              Four connected tools that take you from eligibility check through to
-              approval — with pathway-specific checklists, live risk scoring,
-              and refusal recovery built in.
+              One guided flow that takes you from &ldquo;which visa?&rdquo; all the way to
+              approval — with pathway ranking, eligibility checks, risk scoring,
+              checklists, and refusal recovery built in.
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-20">
+            {/* Primary CTA */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
               <Link
-                href="/au/pathways"
+                href="/au/guide"
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-semibold bg-white text-black rounded-xl hover:bg-zinc-100 transition-all shadow-[0_0_60px_rgba(255,255,255,0.10)] group"
               >
-                Check my pathways
+                <Sparkles className="w-4 h-4" />
+                Start my visa guide
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <Link
-                href="#tools"
+                href="#how-it-works"
                 className="inline-flex items-center justify-center gap-2 px-8 py-3.5 text-sm font-medium text-zinc-400 rounded-xl border border-white/10 hover:border-white/20 hover:text-white transition-all"
               >
                 See how it works
@@ -224,7 +219,7 @@ export default function HomePage() {
                   return (
                     <Link
                       key={country.code}
-                      href={`/${country.code}`}
+                      href={`/${country.code}/guide`}
                       className="glass glass-hover rounded-2xl p-5 flex flex-col items-center gap-2.5 text-center group"
                       style={{ borderColor: col.border }}
                     >
@@ -242,7 +237,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Fade bottom into next section */}
         <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-b from-transparent to-[#04060c] pointer-events-none" />
       </section>
 
@@ -261,9 +255,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── TOOLS ─────────────────────────────────────────────────────── */}
-      <section id="tools" className="section-dark relative overflow-hidden py-28">
-        {/* Radial glow */}
+      {/* ── GUIDE STEPS ───────────────────────────────────────────────── */}
+      <section id="how-it-works" className="section-dark relative overflow-hidden py-28">
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="absolute top-[-10%] right-[15%] w-[500px] h-[500px] rounded-full opacity-[0.06]"
             style={{ background: "radial-gradient(circle, rgba(180,200,255,1) 0%, transparent 70%)" }} />
@@ -271,43 +264,52 @@ export default function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-xs font-semibold text-zinc-500 mb-6 uppercase tracking-widest">
-              Four connected tools
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/[0.07] text-xs font-semibold text-emerald-400 mb-6 uppercase tracking-widest">
+              <Sparkles className="w-3 h-3" />
+              One guided flow
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 tracking-tight">
-              Every stage of the visa journey,{" "}
-              <span className="gradient-text">covered.</span>
+              Every stage of your visa journey,{" "}
+              <span className="gradient-text">in order.</span>
             </h2>
             <p className="text-zinc-500 max-w-xl mx-auto leading-relaxed text-lg">
-              Use one, use all four — they share context so your pathway choice flows directly into your checklist, audit, and recovery plan.
+              Four stages, one flow. Each stage unlocks after the previous one —
+              so you always know exactly where you are and what to do next.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            {tools.map((tool) => {
-              const Icon = tool.icon;
+            {guideSteps.map((step) => {
+              const Icon = step.icon;
               return (
-                <div key={tool.title} className="glass glass-hover card-hover rounded-2xl p-7 flex flex-col gap-5 border border-white/[0.07] group cursor-default">
+                <div key={step.title} className="glass glass-hover card-hover rounded-2xl p-7 flex flex-col gap-5 border border-white/[0.07] group">
                   <div className="flex items-start gap-5">
-                    <div className="w-12 h-12 rounded-xl border border-white/[0.09] bg-white/[0.05] flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-5 h-5 text-zinc-300" />
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl border border-white/[0.09] bg-white/[0.05] flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-zinc-300" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0 pt-0.5">
-                      <div className="text-xs font-bold text-zinc-600 uppercase tracking-widest mb-2">Step {tool.step}</div>
-                      <h3 className="text-base font-bold text-white mb-2">{tool.title}</h3>
-                      <p className="text-sm text-zinc-500 leading-relaxed">{tool.description}</p>
+                      <div className="text-xs font-bold text-zinc-600 uppercase tracking-widest mb-2">Stage {step.step}</div>
+                      <h3 className="text-base font-bold text-white mb-2">{step.title}</h3>
+                      <p className="text-sm text-zinc-500 leading-relaxed">{step.description}</p>
                     </div>
                   </div>
-                  <Link
-                    href={tool.href}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-300 hover:text-white group-hover:gap-2 transition-all self-start"
-                  >
-                    {tool.cta}
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
                 </div>
               );
             })}
+          </div>
+
+          {/* CTA under steps */}
+          <div className="flex justify-center mt-12">
+            <Link
+              href="/au/guide"
+              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold bg-white text-black rounded-xl hover:bg-zinc-100 transition-all group"
+            >
+              <Sparkles className="w-4 h-4" />
+              Start the guide — Australia
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
           </div>
         </div>
       </section>
@@ -321,10 +323,11 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-5 tracking-tight">
               From uncertainty to action{" "}
-              <span className="gradient-text">in three steps.</span>
+              <span className="gradient-text">in minutes.</span>
             </h2>
             <p className="text-zinc-500 max-w-xl mx-auto leading-relaxed text-lg">
-              Most people don&apos;t know what they don&apos;t know. VisaSwitch structures the complexity so you always know your next move.
+              Most people don&apos;t know what they don&apos;t know. VisaSwitch structures
+              the complexity so you always know your next move.
             </p>
           </div>
 
@@ -336,12 +339,12 @@ export default function HomePage() {
               {
                 number: "1",
                 title: "Tell us your situation",
-                desc: "Select your current visa status, nationality, occupation, and goal. No account needed — takes under a minute.",
+                desc: "Select your current visa, destination country, and goal. No account, no forms — takes under a minute.",
               },
               {
                 number: "2",
                 title: "Get your complete picture",
-                desc: "Ranked visa pathways, a pathway-specific checklist, and a live risk score — generated instantly for your exact situation.",
+                desc: "Ranked visa pathways, eligibility self-check, and a live risk score — generated instantly for your exact situation.",
               },
               {
                 number: "3",
@@ -359,17 +362,6 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-
-          {/* CTA under steps */}
-          <div className="flex justify-center mt-14">
-            <Link
-              href="/au/pathways"
-              className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold bg-white text-black rounded-xl hover:bg-zinc-100 transition-all group"
-            >
-              Start for free
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -385,7 +377,8 @@ export default function HomePage() {
               Why VisaSwitch is different
             </h2>
             <p className="text-zinc-500 max-w-xl mx-auto leading-relaxed text-lg">
-              Not a directory. Not a forum. A precision toolkit built specifically for navigating the visa application process.
+              Not a directory. Not a forum. A precision guide built specifically for
+              navigating the visa application process from start to finish.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -474,30 +467,29 @@ export default function HomePage() {
 
       {/* ── FINAL CTA ─────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-black py-32">
-        {/* Glow */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[400px] rounded-full opacity-[0.07]"
             style={{ background: "radial-gradient(ellipse, rgba(200,220,255,1) 0%, transparent 70%)" }} />
         </div>
-        {/* Dot grid */}
         <div className="absolute inset-0 opacity-[0.025] pointer-events-none"
           style={{ backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
 
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/[0.09] bg-white/[0.04] text-xs font-semibold text-zinc-500 mb-7 uppercase tracking-widest">
             <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
-            Free pathway check · No credit card
+            Free to use · No account required
           </div>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">
             Your next step{" "}
             <span className="gradient-text">starts here.</span>
           </h2>
           <p className="text-zinc-500 text-lg mb-12 leading-relaxed max-w-xl mx-auto">
-            No guesswork. No expensive surprises. Just a clear, precise path forward — built for your exact situation.
+            No guesswork. No expensive surprises. Just a clear, precise path from
+            eligibility to approval — built for your exact situation.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
             <Link
-              href="/au/pathways"
+              href="/au/guide"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-semibold bg-white text-black rounded-xl hover:bg-zinc-100 transition-all shadow-[0_0_80px_rgba(255,255,255,0.12)] group"
             >
               <Sparkles className="w-4 h-4" />
