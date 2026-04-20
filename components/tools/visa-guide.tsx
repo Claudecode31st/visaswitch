@@ -863,11 +863,11 @@ function SecondaryCard({
 
           {/* Pros/cons */}
           <details className="group">
-            <summary className="cursor-pointer select-none list-none">
-              <div className="flex items-center justify-between px-4 py-3 rounded-xl border border-white/[0.09] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.15] transition-all">
-                <span className="text-sm font-semibold text-zinc-300">Pros &amp; cons</span>
-                <ChevronDown className="w-4 h-4 text-zinc-500 group-open:rotate-180 transition-transform" />
-              </div>
+            <summary className="text-xs font-semibold cursor-pointer select-none list-none flex items-center gap-1.5">
+              <ChevronDown className="w-3.5 h-3.5 text-zinc-500 group-open:rotate-180 transition-transform" />
+              <span className="text-emerald-400">Pros</span>
+              <span className="text-zinc-600">&amp;</span>
+              <span className="text-red-400">Cons</span>
             </summary>
             <div className="grid sm:grid-cols-2 gap-3 mt-3">
               <div className="bg-emerald-500/[0.07] rounded-xl border border-emerald-500/15 p-3">
