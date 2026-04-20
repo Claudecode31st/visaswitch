@@ -157,7 +157,7 @@ export default async function CountryPage({ params }: Props) {
               <p className="text-zinc-500">All current pathways for {data.name} — click to explore each in detail.</p>
             </div>
             <Link
-              href={`/${country}/pathways`}
+              href={`/${country}/guide`}
               className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-300 hover:text-white transition-colors"
             >
               Full eligibility check
