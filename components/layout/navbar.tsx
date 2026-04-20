@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, Globe } from "lucide-react";
+import { Menu, X, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { countryList } from "@/data";
 
@@ -16,40 +16,20 @@ const countryMeta: Record<string, { abbr: string; tagline: string; color: string
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState<"countries" | null>(null);
   const pathname = usePathname();
-  const navRef = useRef<HTMLDivElement>(null);
 
   const countryCode = pathname.split("/")[1];
   const currentCountry = countryList.find((c) => c.code === countryCode);
   const base = currentCountry ? `/${currentCountry.code}` : "/au";
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (navRef.current && !navRef.current.contains(e.target as Node)) {
-        setOpenMenu(null);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  useEffect(() => { setOpenMenu(null); setMobileOpen(false); }, [pathname]);
-
-  useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpenMenu(null);
-    }
-    document.addEventListener("keydown", handleKey);
-    return () => document.removeEventListener("keydown", handleKey);
-  }, []);
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   const navLink = "px-3 py-2 text-sm font-medium rounded-lg transition-colors text-zinc-400 hover:text-white hover:bg-white/[0.06]";
   const navLinkActive = "px-3 py-2 text-sm font-medium rounded-lg transition-colors text-white bg-white/[0.08]";
 
   return (
     <header className="sticky top-0 z-50 bg-black/85 backdrop-blur-md border-b border-white/[0.07]">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" ref={navRef}>
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
@@ -64,68 +44,6 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-0.5">
-
-            {/* Countries dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setOpenMenu((p) => (p === "countries" ? null : "countries"))}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                  openMenu === "countries" ? "text-white bg-white/[0.08]" : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
-                )}
-              >
-                {currentCountry ? (
-                  <>
-                    <span className={cn("text-xs font-bold px-1.5 py-0.5 rounded", countryMeta[currentCountry.code]?.color)}>
-                      {countryMeta[currentCountry.code]?.abbr}
-                    </span>
-                    <span>{currentCountry.name}</span>
-                  </>
-                ) : (
-                  <span>Countries</span>
-                )}
-                <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-150", openMenu === "countries" && "rotate-180")} />
-              </button>
-
-              {openMenu === "countries" && (
-                <div className="absolute top-full left-0 mt-2 w-64 bg-zinc-950/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/[0.09] overflow-hidden z-50">
-                  <div className="px-3 pt-3 pb-1">
-                    <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider px-2 mb-1">Select country</p>
-                  </div>
-                  <div className="px-2 pb-2 space-y-0.5">
-                    {countryList.map((country) => {
-                      const meta = countryMeta[country.code];
-                      const active = pathname.startsWith(`/${country.code}`);
-                      return (
-                        <Link
-                          key={country.code}
-                          href={`/${country.code}`}
-                          className={cn(
-                            "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors group",
-                            active ? "bg-white/[0.08]" : "hover:bg-white/[0.05]"
-                          )}
-                        >
-                          <span className={cn("text-xs font-bold w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0", meta.color)}>
-                            {meta.abbr}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <div className={cn("text-sm font-semibold", active ? "text-white" : "text-zinc-200 group-hover:text-white")}>
-                              {country.name}
-                            </div>
-                            <div className="text-xs text-zinc-600 mt-0.5">{meta.tagline}</div>
-                          </div>
-                          {active && <div className="w-1.5 h-1.5 rounded-full bg-white/60 flex-shrink-0" />}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Link href={`${base}/guide`} className={pathname.includes("/guide") ? navLinkActive : navLink}>
-              Guide
-            </Link>
             <Link href="/pricing" className={pathname === "/pricing" ? navLinkActive : navLink}>
               Pricing
             </Link>
@@ -159,32 +77,9 @@ export function Navbar() {
       {mobileOpen && (
         <div className="md:hidden border-t border-white/[0.07] bg-zinc-950">
           <div className="px-4 py-4 space-y-1">
-            <p className="text-xs font-semibold text-zinc-600 uppercase tracking-wider px-3 py-1">Countries</p>
-            {countryList.map((country) => {
-              const meta = countryMeta[country.code];
-              return (
-                <Link
-                  key={country.code}
-                  href={`/${country.code}`}
-                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <span className={cn("text-xs font-bold w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0", meta.color)}>
-                    {meta.abbr}
-                  </span>
-                  <div>
-                    <div className="font-medium">{country.name}</div>
-                    <div className="text-xs text-zinc-600">{meta.tagline}</div>
-                  </div>
-                </Link>
-              );
-            })}
-            <div className="pt-3 space-y-0.5">
-              <Link href={`${base}/guide`} className="block px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>Guide</Link>
-              <Link href="/pricing" className="block px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>Pricing</Link>
-              <Link href="/about" className="block px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>About</Link>
-            </div>
-            <div className="pt-3">
+            <Link href="/pricing" className="block px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>Pricing</Link>
+            <Link href="/about" className="block px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>About</Link>
+            <div className="pt-2">
               <Link href={`${base}/guide`} className="block px-3 py-2.5 text-sm font-semibold text-black text-center bg-white rounded-xl hover:bg-zinc-100 transition-all" onClick={() => setMobileOpen(false)}>Start free guide</Link>
             </div>
           </div>
