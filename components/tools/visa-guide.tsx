@@ -2136,10 +2136,11 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                 onRefusalLetterChange={(text) => persist({ refusalLetter: text })}
                 onAppReferenceChange={(val) => persist({ appReferenceNumber: val })}
                 onStartPathway={(pathwayId) => {
+                  // Go to Step 1 with the pathway expanded for review — not yet confirmed
                   persist({
-                    confirmedPathwayId: pathwayId,
-                    step: 2,
-                    maxUnlocked: 2,
+                    step: 1,
+                    maxUnlocked: 1,
+                    confirmedPathwayId: null,
                     outcome: null,
                     refusalReasons: [],
                     refusalLetter: "",
@@ -2150,6 +2151,13 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                     lodgementDate: "",
                   });
                   window.scrollTo({ top: 0, behavior: "smooth" });
+                  // After navigation, scroll to and expand the target pathway card
+                  setTimeout(() => {
+                    const el = document.getElementById(`pathway-${pathwayId}`);
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                  }, 300);
                 }}
               />
             )}
