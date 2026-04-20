@@ -71,6 +71,7 @@ interface GuideState {
   outcome: ApplicationOutcome | null;
   refusalReasons: string[];
   refusalLetter: string;
+  appReferenceNumber: string;
 }
 
 const STORAGE_KEY_PREFIX = "vs_guide_";
@@ -86,6 +87,7 @@ const defaultState: Omit<GuideState, "step" | "maxUnlocked"> = {
   outcome: null,
   refusalReasons: [],
   refusalLetter: "",
+  appReferenceNumber: "",
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -1521,9 +1523,12 @@ function Step4TrackSubmit({
   outcome,
   refusalReasons,
   refusalLetter,
+  appReferenceNumber,
+  lodgementDate,
   onOutcomeChange,
   onRefusalReasonToggle,
   onRefusalLetterChange,
+  onAppReferenceChange,
   onStartPathway,
 }: {
   countryData: CountryData;
@@ -1531,9 +1536,12 @@ function Step4TrackSubmit({
   outcome: ApplicationOutcome | null;
   refusalReasons: string[];
   refusalLetter: string;
+  appReferenceNumber: string;
+  lodgementDate: string;
   onOutcomeChange: (o: ApplicationOutcome) => void;
   onRefusalReasonToggle: (id: string) => void;
   onRefusalLetterChange: (text: string) => void;
+  onAppReferenceChange: (val: string) => void;
   onStartPathway: (pathwayId: string) => void;
 }) {
   const [expandedReason, setExpandedReason] = useState<string | null>(null);
@@ -1569,15 +1577,60 @@ function Step4TrackSubmit({
         </p>
       </div>
 
-      {/* Confirmed pathway */}
-      <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white/[0.05] border border-white/[0.10] rounded-xl">
-        <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center", pathway.iconBg)}>
-          <Globe className={cn("w-3.5 h-3.5", pathway.iconColor)} />
+      {/* Application details card */}
+      <div className="glass rounded-2xl border border-white/[0.10] p-5 space-y-4">
+        {/* Pathway row */}
+        <div className="flex items-center gap-2.5">
+          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0", pathway.iconBg)}>
+            <Globe className={cn("w-4 h-4", pathway.iconColor)} />
+          </div>
+          <div>
+            <div className="text-xs text-zinc-500">Tracking</div>
+            <div className="text-sm font-bold text-white">{pathway.name}</div>
+          </div>
         </div>
-        <div>
-          <div className="text-xs text-zinc-500">Tracking</div>
-          <div className="text-sm font-bold text-white">{pathway.name}</div>
+
+        <div className="border-t border-white/[0.07]" />
+
+        {/* Reference number + expected decision */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-500 mb-1.5">Application reference number</label>
+            <input
+              type="text"
+              value={appReferenceNumber}
+              onChange={(e) => onAppReferenceChange(e.target.value)}
+              placeholder="e.g. 3AC7F2910"
+              className="w-full bg-white/[0.04] border border-white/[0.10] rounded-xl px-3 py-2 text-sm text-zinc-300 placeholder:text-zinc-700 focus:outline-none focus:border-white/[0.25] transition-colors"
+            />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-zinc-500 mb-1.5">Processing time</div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-zinc-600" />
+              <span className="text-sm text-zinc-400">{pathway.processingTime}</span>
+            </div>
+            {lodgementDate && (
+              <div className="text-xs text-zinc-600 mt-1">
+                Lodged: {new Date(lodgementDate).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" })}
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Official portal CTA */}
+        <a
+          href={countryData.visaBodyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between px-4 py-3 rounded-xl border border-white/[0.10] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/[0.20] transition-all group"
+        >
+          <div>
+            <div className="text-sm font-semibold text-white">Check status on {countryData.visaBodyName}</div>
+            <div className="text-xs text-zinc-600 mt-0.5">{countryData.visaBodyUrl}</div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+        </a>
       </div>
 
       {/* Outcome tracker */}
@@ -2069,6 +2122,8 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                 outcome={state.outcome}
                 refusalReasons={state.refusalReasons}
                 refusalLetter={state.refusalLetter}
+                appReferenceNumber={state.appReferenceNumber}
+                lodgementDate={state.lodgementDate}
                 onOutcomeChange={(o) => persist({ outcome: o })}
                 onRefusalReasonToggle={(id) => {
                   const cur = new Set(state.refusalReasons);
@@ -2077,6 +2132,7 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                   persist({ refusalReasons: Array.from(cur) });
                 }}
                 onRefusalLetterChange={(text) => persist({ refusalLetter: text })}
+                onAppReferenceChange={(val) => persist({ appReferenceNumber: val })}
                 onStartPathway={(pathwayId) => {
                   persist({
                     confirmedPathwayId: pathwayId,
@@ -2085,6 +2141,7 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                     outcome: null,
                     refusalReasons: [],
                     refusalLetter: "",
+                    appReferenceNumber: "",
                     eligibilityChecks: {},
                     riskAnswers: {},
                     checklistCompleted: {},
