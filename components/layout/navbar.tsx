@@ -3,10 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Menu, X, ChevronDown, Globe,
-  LogIn, Sparkles, Tag, Info,
-} from "lucide-react";
+import { Menu, X, ChevronDown, Globe, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { countryList } from "@/data";
 
@@ -21,13 +18,12 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<"countries" | null>(null);
   const pathname = usePathname();
-
   const navRef = useRef<HTMLDivElement>(null);
 
   const countryCode = pathname.split("/")[1];
   const currentCountry = countryList.find((c) => c.code === countryCode);
+  const base = currentCountry ? `/${currentCountry.code}` : "/au";
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
@@ -38,13 +34,8 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close dropdown on route change
-  useEffect(() => {
-    setOpenMenu(null);
-    setMobileOpen(false);
-  }, [pathname]);
+  useEffect(() => { setOpenMenu(null); setMobileOpen(false); }, [pathname]);
 
-  // Close on Escape
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpenMenu(null);
@@ -53,11 +44,8 @@ export function Navbar() {
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  function toggle(menu: "countries") {
-    setOpenMenu((prev) => (prev === menu ? null : menu));
-  }
-
-  const base = currentCountry ? `/${currentCountry.code}` : "/au";
+  const navLink = "px-3 py-2 text-sm font-medium rounded-lg transition-colors text-zinc-400 hover:text-white hover:bg-white/[0.06]";
+  const navLinkActive = "px-3 py-2 text-sm font-medium rounded-lg transition-colors text-white bg-white/[0.08]";
 
   return (
     <header className="sticky top-0 z-50 bg-black/85 backdrop-blur-md border-b border-white/[0.07]">
@@ -66,26 +54,24 @@ export function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center shadow-sm border border-white/[0.08]">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center border border-white/[0.08]">
               <Globe className="w-4 h-4 text-zinc-300" />
             </div>
             <span className="font-bold text-white text-lg tracking-tight">
-              Visa<span className="text-zinc-300">Switch</span>
+              Visa<span className="text-zinc-400">Switch</span>
             </span>
           </Link>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-0.5">
 
-            {/* Countries */}
+            {/* Countries dropdown */}
             <div className="relative">
               <button
-                onClick={() => toggle("countries")}
+                onClick={() => setOpenMenu((p) => (p === "countries" ? null : "countries"))}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                  openMenu === "countries"
-                    ? "text-white bg-white/10"
-                    : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
+                  openMenu === "countries" ? "text-white bg-white/[0.08]" : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
                 )}
               >
                 {currentCountry ? (
@@ -96,10 +82,7 @@ export function Navbar() {
                     <span>{currentCountry.name}</span>
                   </>
                 ) : (
-                  <>
-                    <Globe className="w-3.5 h-3.5" />
-                    <span>Countries</span>
-                  </>
+                  <span>Countries</span>
                 )}
                 <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-150", openMenu === "countries" && "rotate-180")} />
               </button>
@@ -140,32 +123,13 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Visa Guide */}
-            <Link
-              href={`${base}/guide`}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                pathname.includes("/guide")
-                  ? "text-white bg-white/10"
-                  : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
-              )}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Visa Guide</span>
+            <Link href={`${base}/guide`} className={pathname.includes("/guide") ? navLinkActive : navLink}>
+              Guide
             </Link>
-
-            <Link
-              href="/pricing"
-              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white rounded-lg hover:bg-white/[0.06] transition-colors"
-            >
-              <Tag className="w-3.5 h-3.5" />
+            <Link href="/pricing" className={pathname === "/pricing" ? navLinkActive : navLink}>
               Pricing
             </Link>
-            <Link
-              href="/about"
-              className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white rounded-lg hover:bg-white/[0.06] transition-colors"
-            >
-              <Info className="w-3.5 h-3.5" />
+            <Link href="/about" className={pathname === "/about" ? navLinkActive : navLink}>
               About
             </Link>
           </div>
@@ -174,16 +138,15 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             <Link
               href="/sign-in"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white rounded-lg border border-white/[0.12] hover:border-white/25 hover:bg-white/[0.06] transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white rounded-lg border border-white/[0.10] hover:border-white/20 transition-all"
             >
               <LogIn className="w-3.5 h-3.5" />
               Sign in
             </Link>
             <Link
               href="/sign-up"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-white text-black rounded-lg hover:bg-zinc-100 transition-all shadow-sm"
+              className="inline-flex items-center px-4 py-2 text-sm font-semibold bg-white text-black rounded-lg hover:bg-zinc-100 transition-all"
             >
-              <Sparkles className="w-3.5 h-3.5" />
               Get started free
             </Link>
           </div>
@@ -223,35 +186,14 @@ export function Navbar() {
                 </Link>
               );
             })}
-            <p className="text-xs font-semibold text-zinc-600 uppercase tracking-wider px-3 pt-4 pb-1">Guide</p>
-            <Link
-              href={`${base}/guide`}
-              className="flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl"
-              onClick={() => setMobileOpen(false)}
-            >
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 border border-white/[0.07] bg-white/[0.05]">
-                <Sparkles className="w-3.5 h-3.5 text-zinc-300" />
-              </div>
-              <div>
-                <div className="font-medium">Visa Guide</div>
-                <div className="text-xs text-zinc-600">Complete step-by-step visa journey</div>
-              </div>
-            </Link>
-            <div className="pt-4 space-y-2">
-              <Link
-                href="/sign-in"
-                className="block px-3 py-2.5 text-sm font-medium text-zinc-300 hover:bg-white/[0.05] rounded-xl"
-                onClick={() => setMobileOpen(false)}
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/sign-up"
-                className="block px-3 py-2.5 text-sm font-semibold text-black text-center bg-white rounded-xl hover:bg-zinc-100 transition-all"
-                onClick={() => setMobileOpen(false)}
-              >
-                Get started free
-              </Link>
+            <div className="pt-3 space-y-0.5">
+              <Link href={`${base}/guide`} className="block px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>Guide</Link>
+              <Link href="/pricing" className="block px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>Pricing</Link>
+              <Link href="/about" className="block px-3 py-2.5 text-sm text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>About</Link>
+            </div>
+            <div className="pt-3 space-y-2">
+              <Link href="/sign-in" className="block px-3 py-2.5 text-sm font-medium text-zinc-300 hover:bg-white/[0.05] rounded-xl" onClick={() => setMobileOpen(false)}>Sign in</Link>
+              <Link href="/sign-up" className="block px-3 py-2.5 text-sm font-semibold text-black text-center bg-white rounded-xl hover:bg-zinc-100 transition-all" onClick={() => setMobileOpen(false)}>Get started free</Link>
             </div>
           </div>
         </div>
