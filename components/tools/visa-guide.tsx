@@ -1524,6 +1524,7 @@ function Step4TrackSubmit({
   onOutcomeChange,
   onRefusalReasonToggle,
   onRefusalLetterChange,
+  onStartPathway,
 }: {
   countryData: CountryData;
   pathway: VisaPathway;
@@ -1533,6 +1534,7 @@ function Step4TrackSubmit({
   onOutcomeChange: (o: ApplicationOutcome) => void;
   onRefusalReasonToggle: (id: string) => void;
   onRefusalLetterChange: (text: string) => void;
+  onStartPathway: (pathwayId: string) => void;
 }) {
   const [expandedReason, setExpandedReason] = useState<string | null>(null);
 
@@ -1638,12 +1640,13 @@ function Step4TrackSubmit({
               <p className="text-xs font-semibold text-zinc-500 mb-2">Your next pathways:</p>
               <div className="flex flex-wrap gap-2">
                 {pathway.pathwayTo.map((p) => (
-                  <span
+                  <button
                     key={p}
-                    className="text-xs bg-white/[0.07] text-zinc-300 border border-white/10 px-2.5 py-1 rounded-full"
+                    onClick={() => onStartPathway(p)}
+                    className="text-xs bg-white/[0.07] text-zinc-300 border border-white/10 px-2.5 py-1 rounded-full hover:bg-white/[0.14] hover:border-white/[0.25] hover:text-white transition-all"
                   >
-                    {p}
-                  </span>
+                    {p} →
+                  </button>
                 ))}
               </div>
             </div>
@@ -2044,6 +2047,21 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                   persist({ refusalReasons: Array.from(cur) });
                 }}
                 onRefusalLetterChange={(text) => persist({ refusalLetter: text })}
+                onStartPathway={(pathwayId) => {
+                  persist({
+                    confirmedPathwayId: pathwayId,
+                    step: 2,
+                    maxUnlocked: 2,
+                    outcome: null,
+                    refusalReasons: [],
+                    refusalLetter: "",
+                    eligibilityChecks: {},
+                    riskAnswers: {},
+                    checklistCompleted: {},
+                    lodgementDate: "",
+                  });
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
               />
             )}
           </div>
