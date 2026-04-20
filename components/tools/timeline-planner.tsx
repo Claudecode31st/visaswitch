@@ -9,7 +9,7 @@ import { OutcomeTracker } from "@/components/tools/outcome-tracker";
 import { ReportModal } from "@/components/tools/report-modal";
 import {
   ListChecks, ChevronRight, CheckCircle, Circle, Clock, AlertCircle,
-  CalendarDays, BarChart3, Info, ArrowRight,
+  CalendarDays, Info, ArrowRight,
   ChevronDown, ChevronUp, Target, FileCheck, Shield,
   LayoutList, GitBranch, DollarSign, FileDown,
 } from "lucide-react";
@@ -604,19 +604,6 @@ export function TimelinePlanner({ countryData, countryCode }: Props) {
           />
         )}
 
-        {/* B6: Bottom CTA */}
-        <div className="flex items-center justify-between gap-4 px-1">
-          <p className="text-xs text-zinc-500 leading-relaxed">
-            Checklist done? Run a pre-lodgement risk audit to find weak spots before you submit.
-          </p>
-          <Link
-            href={selectedPathway ? `/${countryCode}/audit?pathway=${selectedPathway}` : `/${countryCode}/audit`}
-            className="flex-shrink-0 inline-flex items-center gap-1.5 border border-white/[0.12] text-zinc-300 text-xs font-semibold px-4 py-2.5 rounded-lg hover:border-white/25 hover:text-white transition-all"
-          >
-            <BarChart3 className="w-3.5 h-3.5" />
-            Risk audit
-          </Link>
-        </div>
 
         {/* B7: Disclaimer note */}
         <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
