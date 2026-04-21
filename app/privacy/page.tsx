@@ -78,7 +78,7 @@ export default function PrivacyPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* TL;DR */}
-          <div className="glass rounded-xl border border-white/[0.08] p-5 mb-10">
+          <div className="glass rounded-xl border border-white/[0.20] p-5 mb-10">
             <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-2">tl;dr</p>
             <p className="text-sm text-zinc-400 leading-relaxed">
               Your guide progress is stored in your browser only. We never send it anywhere unless you sign up for cloud sync. No ads. No tracking. No data sales.
