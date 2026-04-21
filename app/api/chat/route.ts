@@ -72,8 +72,16 @@ export async function POST(req: Request) {
         "X-Content-Type-Options": "nosniff",
       },
     });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Chat API error:", err);
+    // Anthropic rate limit
+    if (err instanceof Error && err.message.includes("rate_limit")) {
+      return new Response("Too many requests right now — please wait a moment and try again.", { status: 429 });
+    }
+    // Anthropic spend cap hit
+    if (err instanceof Error && err.message.includes("credit")) {
+      return new Response("Chat is temporarily unavailable. Please try again later.", { status: 503 });
+    }
     return new Response("Something went wrong. Please try again.", { status: 500 });
   }
 }
