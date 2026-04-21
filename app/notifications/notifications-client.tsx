@@ -115,6 +115,7 @@ export function NotificationsClient() {
   const [saved, setSaved] = useState(false);
   const [showDisableInfo, setShowDisableInfo] = useState(false);
   const [cacheCleared, setCacheCleared] = useState(false);
+  const [clearing, setClearing] = useState(false);
   // Which country groups are expanded in visa watchlist
   const countries = [...new Set(VISAS.map((v) => v.country))];
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
@@ -132,6 +133,13 @@ export function NotificationsClient() {
       if (s.visas) setWatchedVisas(new Set(s.visas));
       if (s.updates) setUpdatePrefs(new Set(s.updates));
     } catch { /* ignore */ }
+
+    // Show confirmation if this page load was triggered by clearCache()
+    if (sessionStorage.getItem("vs_just_cleared") === "1") {
+      sessionStorage.removeItem("vs_just_cleared");
+      setCacheCleared(true);
+      setTimeout(() => setCacheCleared(false), 4000);
+    }
   }, []);
 
   async function requestPermission() {
@@ -156,22 +164,28 @@ export function NotificationsClient() {
     setTimeout(() => setSaved(false), 2500);
   }
   async function clearCache() {
-    // Clear all SW caches
-    if ("caches" in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map((k) => caches.delete(k)));
+    setClearing(true);
+    try {
+      // 1. Clear all SW caches
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      // 2. Unregister all service workers
+      if ("serviceWorker" in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+      // 3. Wipe all localStorage
+      localStorage.clear();
+      // 4. Set a flag so the page knows it just cleared (survives reload via sessionStorage)
+      sessionStorage.setItem("vs_just_cleared", "1");
+    } catch (e) {
+      console.error("clearCache error:", e);
     }
-    // Unregister service worker — stops push delivery until next page load re-registers it
-    if ("serviceWorker" in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map((r) => r.unregister()));
-    }
-    // Clear stored prefs
-    localStorage.removeItem("vs_notif_prefs");
-    setWatchedVisas(new Set());
-    setUpdatePrefs(new Set());
     setCacheCleared(true);
-    setTimeout(() => setCacheCleared(false), 4000);
+    // Auto-reload after 1.5 s so everything takes effect fresh
+    setTimeout(() => window.location.reload(), 1500);
   }
 
   function turnOffAll() {
@@ -457,27 +471,19 @@ export function NotificationsClient() {
           <div className="pt-1 border-t" style={{ borderColor: "var(--border)" }} />
 
           {/* Clear cache */}
-          <button onClick={clearCache}
-            className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 border transition-colors hover:opacity-80"
+          <button onClick={clearCache} disabled={clearing}
+            className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 border transition-colors hover:opacity-80 disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ borderColor: "var(--border)", color: "var(--muted-foreground)", background: "var(--muted)" }}>
-            <Trash2 className="w-3.5 h-3.5" />
-            {cacheCleared ? "Cache cleared — reload to finish" : "Clear cache & reset"}
+            <Trash2 className={cn("w-3.5 h-3.5", clearing && "animate-pulse")} />
+            {cacheCleared ? "Cleared — reloading…" : clearing ? "Clearing…" : "Clear cache & reset"}
           </button>
 
-          {cacheCleared && (
+          {cacheCleared && !clearing && (
             <div className="rounded-xl border px-4 py-3.5 flex gap-3" style={{ borderColor: "var(--border)", background: "var(--muted)" }}>
-              <Info className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
-              <div>
-                <p className="text-xs font-semibold mb-1" style={{ color: "var(--foreground)" }}>Cache cleared</p>
-                <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
-                  All cached data and preferences have been wiped. The service worker has been unregistered — notifications are paused until you reload the page. To fully block future notifications, revoke permission in your browser or phone settings.
-                </p>
-                <button onClick={() => window.location.reload()}
-                  className="text-xs font-semibold mt-2 hover:opacity-70"
-                  style={{ color: "var(--foreground)" }}>
-                  Reload now
-                </button>
-              </div>
+              <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+              <p className="text-xs leading-relaxed" style={{ color: "var(--muted-foreground)" }}>
+                All done — cache, service worker, and preferences have been reset. To fully block notifications, revoke permission in your browser or phone settings.
+              </p>
             </div>
           )}
         </section>
