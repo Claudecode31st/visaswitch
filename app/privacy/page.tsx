@@ -70,7 +70,7 @@ export default function PrivacyPage() {
           <h1 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight" style={{ color: "var(--foreground)" }}>Privacy Policy</h1>
           <p className="text-sm" style={{ color: "var(--muted-foreground)" }}>Last updated: April 2025</p>
         </div>
-        <div className="absolute bottom-0 inset-x-0 h-12 bg-gradient-to-b from-transparent to-[#04060c] pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-12 pointer-events-none" style={{ background: "linear-gradient(to bottom, transparent, var(--section-dark-from))" }} />
       </section>
 
       {/* Body */}
