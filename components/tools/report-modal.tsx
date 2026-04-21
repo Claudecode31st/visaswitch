@@ -577,9 +577,10 @@ export function ReportModal({
         <div className="flex items-center gap-2">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-black text-xs font-bold rounded-xl hover:bg-zinc-100 transition-all"
+            className="flex items-center justify-center p-2 bg-white text-black rounded-xl hover:bg-zinc-100 transition-all"
+            title="Print / Save PDF"
           >
-            <Printer className="w-3.5 h-3.5" /> Print / Save PDF
+            <Printer className="w-4 h-4" />
           </button>
           <button
             onClick={onClose}
