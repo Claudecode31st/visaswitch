@@ -106,6 +106,21 @@ function buildPrintHtml(props: Omit<Props, "onClose">): string {
   const css = `
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     @page { size: A4; margin: 2cm 2cm 2.5cm 2cm; }
+    @media print { .print-bar { display: none !important; } }
+    .print-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: #111; color: #fff; padding: 10px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 13px;
+    }
+    .print-bar span { opacity: .7; font-size: 12px; }
+    .print-btn {
+      background: #fff; color: #111; border: none; border-radius: 8px;
+      padding: 7px 18px; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .print-btn:hover { background: #e5e5e5; }
+    .report-body { max-width: 800px; margin: 0 auto; padding: 32px 24px 60px; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       font-size: 10pt; line-height: 1.5; color: #111; background: #fff;
@@ -447,7 +462,13 @@ function buildPrintHtml(props: Omit<Props, "onClose">): string {
   <title>Visa Application Report &mdash; ${esc(pathway ? pathway.name : countryName)}</title>
   <style>${css}</style>
 </head>
-<body>${body}</body>
+<body>
+  <div class="print-bar">
+    <span>VisaSwitch &mdash; Visa Application Report</span>
+    <button class="print-btn" onclick="window.print()">&#128438; Save as PDF</button>
+  </div>
+  <div class="report-body">${body}</div>
+</body>
 </html>`;
 }
 
@@ -518,16 +539,24 @@ export function ReportModal({
       eligibilityChecks, riskAnswers, riskFactors,
       outcome, appReferenceNumber, refusalReasons, refusalReasonData,
     });
-    const win = window.open("", "_blank", "width=900,height=700");
-    if (!win) return;
+    // Open as a tab (no size params = tab, not popup — avoids Safari popup blocker)
+    const win = window.open("", "_blank");
+    if (!win) {
+      // Fallback: blob download
+      const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `visa-report-${countryCode}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
+    }
     win.document.write(html);
     win.document.close();
     win.focus();
-    // Give images / fonts a moment then print
-    setTimeout(() => {
-      win.print();
-      win.close();
-    }, 400);
+    // Give the page a moment to render, then trigger print
+    setTimeout(() => { win.print(); }, 500);
   }, [
     pathway, countryName, countryCode, checklist, completed,
     lodgementDate, totalEstimate, applicationFee,

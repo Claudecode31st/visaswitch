@@ -1973,19 +1973,12 @@ function Step4TrackSubmit({
                   </div>
                 ))}
               </div>
-              <div className="mt-5 pt-4 border-t border-white/[0.08] space-y-3">
+              <div className="mt-5 pt-4 border-t border-white/[0.08]">
                 <p className="text-xs text-zinc-500 leading-relaxed">
                   <span className="font-semibold text-zinc-300">Next step:</span> Address
                   every point above, then reapply with a comprehensive response addressing
                   the original reasons for refusal.
                 </p>
-                <button
-                  onClick={onDownloadReport}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white text-black text-sm font-bold hover:bg-zinc-100 transition-all"
-                >
-                  <FileCheck className="w-4 h-4" />
-                  Download recovery report
-                </button>
               </div>
             </div>
           )}
