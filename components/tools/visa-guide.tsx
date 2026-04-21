@@ -959,6 +959,8 @@ function Step2CheckReadiness({
   riskAnswers,
   onEligibilityCheck,
   onRiskAnswer,
+  onSelectAllEligibility,
+  onSelectAllRisk,
   onContinue,
 }: {
   countryData: CountryData;
@@ -967,6 +969,8 @@ function Step2CheckReadiness({
   riskAnswers: Record<string, "yes" | "no" | "partial">;
   onEligibilityCheck: (id: string, met: boolean) => void;
   onRiskAnswer: (id: string, ans: "yes" | "no" | "partial") => void;
+  onSelectAllEligibility: (met: boolean) => void;
+  onSelectAllRisk: (ans: "yes" | "no" | "partial") => void;
   onContinue: () => void;
 }) {
   const relevantFactors = useMemo(
@@ -1034,9 +1038,17 @@ function Step2CheckReadiness({
               <CheckSquare className="w-4 h-4 text-zinc-400" />
               Eligibility self-check
             </h3>
-            <span className="text-xs text-zinc-500">
-              {metCount} / {pathway.eligibility.length} confirmed
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-zinc-500">
+                {metCount} / {pathway.eligibility.length} confirmed
+              </span>
+              <button
+                onClick={() => onSelectAllEligibility(metCount < pathway.eligibility.length)}
+                className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
+              >
+                {metCount === pathway.eligibility.length ? "Clear all" : "Select all"}
+              </button>
+            </div>
           </div>
           <div className="space-y-2">
             {pathway.eligibility.map((req) => {
@@ -1102,9 +1114,17 @@ function Step2CheckReadiness({
               <Shield className="w-4 h-4 text-zinc-400" />
               Risk profile questions
             </h3>
-            <span className="text-xs text-zinc-500">
-              {answeredCount} / {totalFactors} answered
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-zinc-500">
+                {answeredCount} / {totalFactors} answered
+              </span>
+              <button
+                onClick={() => onSelectAllRisk("no")}
+                className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors"
+              >
+                Mark all as No
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3">
@@ -1221,6 +1241,7 @@ function Step3BuildPlan({
   checklistCompleted,
   lodgementDate,
   onToggleItem,
+  onSelectAllPhase,
   onLodgementDateChange,
   onContinue,
 }: {
@@ -1229,6 +1250,7 @@ function Step3BuildPlan({
   checklistCompleted: Record<string, boolean>;
   lodgementDate: string;
   onToggleItem: (id: string) => void;
+  onSelectAllPhase: (ids: string[], done: boolean) => void;
   onLodgementDateChange: (date: string) => void;
   onContinue: () => void;
 }) {
@@ -1341,18 +1363,29 @@ function Step3BuildPlan({
 
       {/* Checklist phases */}
       <div className="space-y-6">
-        {phases.map((phase, pi) => (
+        {phases.map((phase, pi) => {
+          const phaseIds = phase.items.map((i) => i.id);
+          const phaseDoneCount = phase.items.filter((i) => checklistCompleted[i.id]).length;
+          const allPhaseDone = phaseDoneCount === phase.items.length;
+          return (
           <div key={pi}>
-            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <span className="inline-flex w-5 h-5 rounded-full bg-white/10 items-center justify-center text-[10px] font-black text-white">
-                {pi + 1}
-              </span>
-              {phase.label}
-              <span className="font-normal text-zinc-600 normal-case tracking-normal">
-                — {phase.items.filter((i) => checklistCompleted[i.id]).length}/{phase.items.length}{" "}
-                done
-              </span>
-            </h3>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+                <span className="inline-flex w-5 h-5 rounded-full bg-white/10 items-center justify-center text-[10px] font-black text-white">
+                  {pi + 1}
+                </span>
+                {phase.label}
+                <span className="font-normal text-zinc-600 normal-case tracking-normal">
+                  — {phaseDoneCount}/{phase.items.length} done
+                </span>
+              </h3>
+              <button
+                onClick={() => onSelectAllPhase(phaseIds, !allPhaseDone)}
+                className="text-xs font-semibold text-zinc-400 hover:text-white transition-colors flex-shrink-0"
+              >
+                {allPhaseDone ? "Clear all" : "Select all"}
+              </button>
+            </div>
             <div className="space-y-2">
               {phase.items.map((item) => {
                 const done = !!checklistCompleted[item.id];
@@ -1437,7 +1470,8 @@ function Step3BuildPlan({
               })}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Cost summary */}
@@ -2165,6 +2199,18 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                 onRiskAnswer={(id, ans) =>
                   persist({ riskAnswers: { ...state.riskAnswers, [id]: ans } })
                 }
+                onSelectAllEligibility={(met) => {
+                  const updated: Record<string, boolean> = {};
+                  confirmedPathway.eligibility.forEach((r) => { updated[r.id] = met; });
+                  persist({ eligibilityChecks: updated });
+                }}
+                onSelectAllRisk={(ans) => {
+                  const updated: Record<string, "yes" | "no" | "partial"> = {};
+                  countryData.riskFactors
+                    .filter((f) => !f.pathwayIds?.length || f.pathwayIds.includes(confirmedPathway.id))
+                    .forEach((f) => { updated[f.id] = ans; });
+                  persist({ riskAnswers: updated });
+                }}
                 onContinue={() => advanceStep(2)}
               />
             )}
@@ -2183,6 +2229,11 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                     },
                   })
                 }
+                onSelectAllPhase={(ids, done) => {
+                  const updated = { ...state.checklistCompleted };
+                  ids.forEach((id) => { updated[id] = done; });
+                  persist({ checklistCompleted: updated });
+                }}
                 onLodgementDateChange={(date) => persist({ lodgementDate: date })}
                 onContinue={() => advanceStep(3)}
               />
