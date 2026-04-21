@@ -87,18 +87,18 @@ function Step1Preview() {
               <p className="text-sm text-zinc-400 mt-1 leading-relaxed">Australia&apos;s most prestigious PR — no employer, no state sponsor needed</p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3 mb-5">
+          <div className="grid grid-cols-3 gap-2 mb-5">
             {[
-              { icon: Clock, label: "Processing", value: "6–18 months after invitation" },
+              { icon: Clock, label: "Processing", value: "6–18 mo." },
               { icon: Calendar, label: "Validity", value: "Permanent" },
               { icon: DollarSign, label: "Govt fee", value: "AUD 4,640" },
             ].map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.label} className="bg-white/[0.05] border border-white/[0.08] rounded-xl px-3 py-3">
-                  <div className="flex items-center gap-1.5 mb-1.5">
+                <div key={stat.label} className="bg-white/[0.05] border border-white/[0.08] rounded-xl px-2.5 py-2.5">
+                  <div className="flex items-center gap-1 mb-1.5">
                     <Icon className="w-3 h-3 text-zinc-500 flex-shrink-0" />
-                    <span className="text-xs text-zinc-500">{stat.label}</span>
+                    <span className="text-[10px] text-zinc-500 truncate">{stat.label}</span>
                   </div>
                   <span className="text-xs font-bold text-white leading-snug block">{stat.value}</span>
                 </div>
@@ -139,8 +139,8 @@ function Step1Preview() {
                     </div>
                   </div>
                 </div>
-                <p className="text-xs text-zinc-500 leading-relaxed pl-[52px] mb-2.5">{p.tagline}</p>
-                <div className="flex items-center gap-4 pl-[52px] text-xs text-zinc-600">
+                <p className="text-xs text-zinc-500 leading-relaxed mb-2.5">{p.tagline}</p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-600">
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3 flex-shrink-0" />{p.time}</span>
                   <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 flex-shrink-0" />{p.cost}</span>
                   <span className="flex items-center gap-1"><Calendar className="w-3 h-3 flex-shrink-0" />{p.validity}</span>
