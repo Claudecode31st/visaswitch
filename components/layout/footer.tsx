@@ -37,7 +37,7 @@ export function Footer() {
         {/* Bottom row */}
         <div className="pt-5 border-t flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5" style={{ borderColor: "var(--footer-border)" }}>
           <p className="text-xs" style={{ color: "var(--muted-foreground)", opacity: 0.6 }}>&copy; {new Date().getFullYear()} VisaSwitch. All rights reserved.</p>
-          <p className="text-xs text-amber-500/60">Not legal advice. Always verify with official government sources.</p>
+          <p className="text-xs dark:text-amber-500/60 text-amber-700">Not legal advice. Always verify with official government sources.</p>
         </div>
       </div>
     </footer>
