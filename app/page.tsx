@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProductPreview } from "@/components/home/product-preview";
+import { FAQAccordion } from "@/components/ui/faq-accordion";
 import {
   ArrowRight,
   CheckCircle,
@@ -448,26 +449,14 @@ export default function HomePage() {
       </section>
 
       {/* ── FAQ ───────────────────────────────────────────────────────── */}
-      <section className="section-dark relative py-28">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+      <section className="section-dark relative py-24">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold mb-3 tracking-tight" style={{ color: "var(--foreground)" }}>Common questions</h2>
             <p className="text-zinc-500">Straight answers — no fluff.</p>
           </div>
-          <div className="space-y-3">
-            {faqs.map((faq, i) => (
-              <div key={i} className="glass card-hover rounded-2xl border border-white/[0.07] overflow-hidden">
-                <div className="px-7 py-6">
-                  <h3 className="text-sm font-bold mb-3 flex items-start gap-3" style={{ color: "var(--foreground)" }}>
-                    <span className="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5" style={{ background: "var(--muted)", border: "1px solid var(--border)", color: "var(--muted-foreground)" }}>
-                      {i + 1}
-                    </span>
-                    {faq.q}
-                  </h3>
-                  <p className="text-sm text-zinc-500 leading-relaxed ml-9">{faq.a}</p>
-                </div>
-              </div>
-            ))}
+          <div className="glass rounded-2xl px-6 sm:px-8" style={{ border: "1px solid var(--border)" }}>
+            <FAQAccordion items={faqs} />
           </div>
         </div>
       </section>

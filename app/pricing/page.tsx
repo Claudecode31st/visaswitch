@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle, XCircle, ArrowRight, Zap, Sparkles } from "lucide-react";
+import { FAQAccordion } from "@/components/ui/faq-accordion";
 
 export const metadata: Metadata = {
   title: "Pricing — VisaSwitch",
@@ -162,9 +163,12 @@ export default function PricingPage() {
       {/* FAQ */}
       <section className="section-mid py-16">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold mb-6 text-center" style={{ color: "var(--foreground)" }}>Common questions</h2>
-          <div className="space-y-3">
-            {[
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight" style={{ color: "var(--foreground)" }}>Common questions</h2>
+            <p className="text-sm text-zinc-500">Everything you need to know before deciding.</p>
+          </div>
+          <div className="glass rounded-2xl px-6 sm:px-8" style={{ border: "1px solid var(--border)" }}>
+            <FAQAccordion items={[
               {
                 q: "Is the guide really fully free?",
                 a: "Yes — all four steps (pathway finder, eligibility check, risk score, checklist, and tracker) are completely free. No account, no credit card, no time limit.",
@@ -178,15 +182,14 @@ export default function PricingPage() {
                 a: "Yes. A single Pro purchase covers Australia, UK, Canada, and Japan — for all your applications, forever.",
               },
               {
-                q: "What if it's not useful for me?",
-                a: "7-day full refund, no questions asked. Just email us.",
+                q: "Is this a subscription?",
+                a: "No. Pro is a one-time payment. You pay once and keep access forever — no recurring charges, no renewal reminders.",
               },
-            ].map((faq, i) => (
-              <div key={i} className="glass rounded-xl p-5" style={{ border: "1px solid var(--border)" }}>
-                <h3 className="text-sm font-semibold mb-1.5" style={{ color: "var(--foreground)" }}>{faq.q}</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">{faq.a}</p>
-              </div>
-            ))}
+              {
+                q: "What if it's not useful for me?",
+                a: "7-day full refund, no questions asked. Just email us at support@visaswitch.com.",
+              },
+            ]} />
           </div>
         </div>
       </section>
