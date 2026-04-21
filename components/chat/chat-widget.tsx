@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
-  MessageCircle, X, Send, Bot, User, Loader2, AlertTriangle, RotateCw,
+  MessageCircle, X, Send, Globe, User, Loader2, AlertTriangle, RotateCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { countryList } from "@/data";
@@ -187,7 +187,7 @@ export function ChatWidget() {
             style={{ background: "var(--muted)", borderColor: "var(--border)" }}>
             <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ background: "var(--primary)" }}>
-              <Bot className="w-4 h-4" style={{ color: "var(--primary-foreground)" }} />
+              <Globe className="w-4 h-4" style={{ color: "var(--primary-foreground)" }} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold leading-none" style={{ color: "var(--foreground)" }}>Visa Assistant</p>
@@ -214,7 +214,7 @@ export function ChatWidget() {
                 <div className="flex gap-2.5">
                   <div className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
                     style={{ background: "var(--primary)" }}>
-                    <Bot className="w-3.5 h-3.5" style={{ color: "var(--primary-foreground)" }} />
+                    <Globe className="w-3.5 h-3.5" style={{ color: "var(--primary-foreground)" }} />
                   </div>
                   <div className="rounded-2xl rounded-tl-sm px-3 py-2.5 text-sm leading-relaxed"
                     style={{ background: "var(--muted)", color: "var(--foreground)" }}>
@@ -243,7 +243,7 @@ export function ChatWidget() {
                 )}
                   style={msg.role === "assistant" ? { background: "var(--primary)" } : undefined}>
                   {msg.role === "assistant"
-                    ? <Bot className="w-3.5 h-3.5" style={{ color: "var(--primary-foreground)" }} />
+                    ? <Globe className="w-3.5 h-3.5" style={{ color: "var(--primary-foreground)" }} />
                     : <User className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />}
                 </div>
 
