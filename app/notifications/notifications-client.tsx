@@ -242,10 +242,7 @@ export function NotificationsClient() {
           </section>
         )}
 
-        {/* ── Preferences — hidden on iOS until added to Home Screen ── */}
-        {(!isIOS || isStandalone) && <>
-
-        {/* ── Why enable — 2×2 grid ─────────────────────────────────── */}
+        {/* ── Why enable — 2×2 grid (always visible) ───────────────── */}
         <section>
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--muted-foreground)" }}>
             Why turn on notifications?
@@ -265,6 +262,9 @@ export function NotificationsClient() {
             })}
           </div>
         </section>
+
+        {/* ── Prefs — hidden on iOS until added to Home Screen ─────── */}
+        {(!isIOS || isStandalone) && <>
 
         {/* ── Notify me about ────────────────────────────────────────── */}
         <section>
