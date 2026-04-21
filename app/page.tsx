@@ -66,7 +66,7 @@ const guideSteps = [
 const stats = [
   { value: "39", label: "Visa pathways mapped", sub: "AU · UK · CA · JP" },
   { value: "4", label: "Guide stages", sub: "Pathway → Approval" },
-  { value: "Free", label: "To start", sub: "No credit card needed" },
+  { value: "Free", label: "To start", sub: "No account needed" },
   { value: "100%", label: "Browser-based", sub: "Nothing stored server-side" },
 ];
 
