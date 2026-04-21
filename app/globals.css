@@ -246,6 +246,8 @@ html:not(.dark) .text-red-400     { color: #b91c1c !important; } /* red-700 */
 html:not(.dark) [class*="text-red-3"]     { color: #991b1b !important; } /* red-800 for 300/80 etc */
 html:not(.dark) .text-amber-400   { color: #b45309 !important; } /* amber-700 */
 html:not(.dark) [class*="text-amber-3"] { color: #92400e !important; } /* amber-800 for /90 variants */
+html:not(.dark) [class*="text-orange-3"],
+html:not(.dark) .text-orange-400  { color: #c2410c !important; } /* orange-700 */
 
 /* 4 ── Transparent-white borders → transparent-black */
 html:not(.dark) [class*="border-white/"] {
@@ -293,6 +295,8 @@ html:not(.dark) .dark-surface [class*="text-emerald-3"] { color: #6ee7b7 !import
 html:not(.dark) .dark-surface .text-red-400      { color: #f87171 !important; }
 html:not(.dark) .dark-surface [class*="text-red-3"]     { color: #fca5a5 !important; }
 html:not(.dark) .dark-surface .text-amber-400    { color: #fbbf24 !important; }
+html:not(.dark) .dark-surface [class*="text-orange-3"],
+html:not(.dark) .dark-surface .text-orange-400   { color: #fb923c !important; }
 html:not(.dark) .dark-surface [class*="text-amber-3"] { color: #fcd34d !important; }
 html:not(.dark) .dark-surface [class*="border-white/"] {
   border-color: rgba(255, 255, 255, 0.09) !important;
