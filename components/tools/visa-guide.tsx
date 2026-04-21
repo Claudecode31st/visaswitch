@@ -162,6 +162,14 @@ function addWeeks(date: Date, weeks: number): Date {
   return result;
 }
 
+/** Format a raw pathway ID into a human-readable pill label */
+function formatPathwayId(id: string): string {
+  // "subclass-189" → "Subclass 189"
+  if (id.startsWith("subclass-")) return "Subclass " + id.slice(9);
+  // "citizenship" → "Citizenship", etc.
+  return id.charAt(0).toUpperCase() + id.slice(1).replace(/-/g, " ");
+}
+
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-AU", {
     day: "numeric",
@@ -217,7 +225,7 @@ function StepNav({
             disabled={locked}
             className={cn(
               "relative flex-1 flex flex-col items-center gap-2 px-1 py-3 sm:px-2 transition-all",
-              locked ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
+              locked ? "cursor-not-allowed" : "cursor-pointer",
               !locked && !active && "hover:opacity-80"
             )}
           >
@@ -230,14 +238,14 @@ function StepNav({
                   : active
                   ? "bg-white border-white"
                   : locked
-                  ? "bg-white/[0.04] border-white/[0.10]"
+                  ? "bg-white/[0.05] border-white/[0.18]"
                   : "bg-white/[0.08] border-white/[0.20]"
               )}
             >
               {done ? (
                 <CheckCircle className="w-5 h-5 text-emerald-400" />
               ) : locked ? (
-                <Lock className="w-4 h-4 text-zinc-600" />
+                <Lock className="w-4 h-4 text-zinc-500" />
               ) : (
                 <Icon
                   className={cn("w-4 h-4", active ? "text-black" : "text-zinc-400")}
@@ -250,12 +258,12 @@ function StepNav({
               <div
                 className={cn(
                   "text-xs font-bold leading-tight",
-                  active ? "text-white" : done ? "text-emerald-400" : "text-zinc-500"
+                  active ? "text-white" : done ? "text-emerald-400" : locked ? "text-zinc-500" : "text-zinc-400"
                 )}
               >
                 {s.label}
               </div>
-              <div className="text-[10px] text-zinc-600 mt-0.5">{s.sublabel}</div>
+              <div className="text-[10px] text-zinc-500 mt-0.5">{s.sublabel}</div>
             </div>
 
             {/* Mobile label */}
@@ -263,7 +271,7 @@ function StepNav({
               <div
                 className={cn(
                   "text-[10px] font-bold leading-tight",
-                  active ? "text-white" : done ? "text-emerald-400" : "text-zinc-500"
+                  active ? "text-white" : done ? "text-emerald-400" : locked ? "text-zinc-500" : "text-zinc-400"
                 )}
               >
                 {s.label}
@@ -487,7 +495,7 @@ function Step1FindPathway({
                 <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">
                   Also consider
                 </span>
-                <span className="text-xs text-zinc-700">
+                <span className="text-xs text-zinc-500">
                   — {secondaryPathways.length} other option
                   {secondaryPathways.length !== 1 ? "s" : ""}
                 </span>
@@ -737,7 +745,7 @@ function BestMatchCard({
                 onClick={() => onPathwayPillClick(p)}
                 className="text-xs bg-white/[0.07] text-zinc-300 border border-white/[0.10] px-2.5 py-1 rounded-full font-medium hover:bg-white/[0.14] hover:border-white/[0.25] hover:text-white transition-all"
               >
-                {p} ↓
+                {formatPathwayId(p)} ↓
               </button>
             ))}
           </div>
@@ -747,7 +755,8 @@ function BestMatchCard({
         <button
           onClick={onConfirm}
           className={cn(
-            "w-full inline-flex items-center justify-center gap-2 text-sm font-bold px-5 py-3.5 rounded-xl transition-all",
+            "w-full inline-flex items-center justify-center gap-2 font-bold px-5 py-3.5 rounded-xl transition-all whitespace-nowrap",
+            "text-xs sm:text-sm",
             isConfirmed
               ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 cursor-default"
               : "bg-white text-black hover:bg-zinc-100"
@@ -755,11 +764,15 @@ function BestMatchCard({
         >
           {isConfirmed ? (
             <>
-              <CheckCircle className="w-4 h-4" /> Pathway confirmed — check your readiness →
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="sm:hidden">Confirmed — check readiness →</span>
+              <span className="hidden sm:inline">Pathway confirmed — check your readiness →</span>
             </>
           ) : (
             <>
-              <CheckCircle className="w-4 h-4" /> Confirm this pathway &amp; continue →
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="sm:hidden">Confirm pathway &amp; continue →</span>
+              <span className="hidden sm:inline">Confirm this pathway &amp; continue →</span>
             </>
           )}
         </button>
@@ -1704,7 +1717,7 @@ function Step4TrackSubmit({
                     onClick={() => onStartPathway(p)}
                     className="text-xs bg-white/[0.07] text-zinc-300 border border-white/10 px-2.5 py-1 rounded-full hover:bg-white/[0.14] hover:border-white/[0.25] hover:text-white transition-all"
                   >
-                    {p} →
+                    {formatPathwayId(p)} →
                   </button>
                 ))}
               </div>
@@ -2233,7 +2246,7 @@ export function VisaGuide({ countryData, countryCode }: Props) {
                           <SIcon
                             className={cn(
                               "w-3 h-3",
-                              active ? "text-black" : locked ? "text-zinc-700" : "text-zinc-500"
+                              active ? "text-black" : locked ? "text-zinc-500" : "text-zinc-400"
                             )}
                           />
                         )}
