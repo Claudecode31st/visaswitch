@@ -95,7 +95,9 @@ export function NotificationsClient() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setPermission((Notification?.permission ?? "default") as NotifPerm);
+    if ("Notification" in window) {
+      setPermission((window as Window & { Notification: { permission: string } }).Notification.permission as NotifPerm);
+    }
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || (navigator as { standalone?: boolean }).standalone === true;
     setIsStandalone(standalone);
