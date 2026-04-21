@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Globe, Shield, Zap, AlertTriangle } from "lucide-react";
+import { ArrowRight, Globe, Shield, Zap } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About — VisaSwitch",
@@ -84,20 +84,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Not a law firm */}
-      <section className="section-mid py-12">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-start gap-4 glass rounded-xl border border-amber-500/20 bg-amber-500/[0.04] p-6">
-            <AlertTriangle className="w-5 h-5 text-amber-500/70 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-sm font-bold mb-1.5" style={{ color: "var(--foreground)" }}>Not legal advice</h3>
-              <p className="text-sm text-zinc-500 leading-relaxed">
-                VisaSwitch is not a migration agent, law firm, or government service. We do not provide legal advice and we do not lodge applications on your behalf. For complex or sensitive situations, always engage a registered migration professional and verify requirements with the official government portal.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA */}
       <section className="relative overflow-hidden py-20 text-center hero-gradient">

@@ -96,14 +96,6 @@ export default function PrivacyPage() {
             ))}
           </div>
 
-          <div className="mt-12 pt-8 border-t" style={{ borderColor: "var(--border)" }}>
-            <p className="text-xs text-amber-500/60 mb-4">
-              VisaSwitch is not a migration agent or legal service. Always verify immigration requirements with official government sources.
-            </p>
-            <Link href="/terms" className="text-xs text-zinc-600 hover:text-white transition-colors">
-              Terms of Use →
-            </Link>
-          </div>
         </div>
       </section>
 
