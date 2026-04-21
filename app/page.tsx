@@ -154,7 +154,7 @@ export default function HomePage() {
     <div className="flex flex-col bg-black">
 
       {/* ── HERO ──────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-black min-h-screen flex items-center">
+      <section className="relative overflow-hidden bg-black min-h-[90vh] sm:min-h-screen flex items-center">
         {/* Background glows */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="absolute top-[-15%] left-[10%] w-[700px] h-[700px] rounded-full opacity-[0.07]"
@@ -178,14 +178,14 @@ export default function HomePage() {
             </div>
 
             {/* H1 */}
-            <h1 className="text-5xl sm:text-6xl lg:text-[5rem] font-bold leading-[1.04] mb-7 tracking-tight text-white">
+            <h1 className="text-4xl sm:text-6xl lg:text-[5rem] font-bold leading-[1.08] sm:leading-[1.04] mb-6 tracking-tight text-white">
               Your visa journey,
               <br />
               <span className="gradient-text">step by step.</span>
             </h1>
 
             {/* Subheading */}
-            <p className="text-lg sm:text-xl text-zinc-500 leading-relaxed mb-10 max-w-2xl mx-auto">
+            <p className="text-base sm:text-xl text-zinc-400 leading-relaxed mb-10 max-w-2xl mx-auto">
               One guided flow that takes you from &ldquo;which visa?&rdquo; all the way to
               approval — with pathway ranking, eligibility checks, risk scoring,
               checklists, and refusal recovery built in.
@@ -245,10 +245,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.04] rounded-2xl overflow-hidden">
             {stats.map((stat) => (
-              <div key={stat.label} className="bg-[#04060c] px-8 py-7 flex flex-col gap-1">
-                <div className="text-3xl font-bold text-white">{stat.value}</div>
-                <div className="text-sm font-medium text-zinc-400">{stat.label}</div>
-                <div className="text-xs text-zinc-600">{stat.sub}</div>
+              <div key={stat.label} className="bg-[#04060c] px-5 sm:px-8 py-6 sm:py-7 flex flex-col gap-1">
+                <div className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</div>
+                <div className="text-xs sm:text-sm font-medium text-zinc-300">{stat.label}</div>
+                <div className="text-xs text-zinc-500">{stat.sub}</div>
               </div>
             ))}
           </div>
@@ -436,7 +436,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <p className="text-center text-xs text-zinc-700 mt-6">
+          <p className="text-center text-xs text-zinc-500 mt-6">
             Testimonials reflect individual experiences. Immigration outcomes vary based on personal circumstances.
           </p>
         </div>
@@ -505,14 +505,14 @@ export default function HomePage() {
               View pricing
             </Link>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-zinc-600">
+          <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-zinc-500">
             {[
               "No account required to start",
               "Pathway-specific content",
               "Browser-only · Nothing stored",
             ].map((item) => (
               <span key={item} className="flex items-center gap-1.5">
-                <CheckCircle className="w-3.5 h-3.5 text-zinc-600" />
+                <CheckCircle className="w-3.5 h-3.5 text-zinc-500" />
                 {item}
               </span>
             ))}

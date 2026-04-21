@@ -67,7 +67,7 @@ export default function PricingPage() {
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <h2 className="text-lg font-bold text-white mb-1">Free</h2>
-                  <p className="text-xs text-zinc-600">No account required</p>
+                  <p className="text-xs text-zinc-500">No account required</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center">
                   <Zap className="w-5 h-5 text-zinc-400" />
@@ -151,7 +151,7 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <p className="text-center text-xs text-zinc-700 mt-6">
+          <p className="text-center text-xs text-zinc-500 mt-6">
             One-time payment. No subscription, no recurring charges. 7-day money-back guarantee.
           </p>
         </div>
