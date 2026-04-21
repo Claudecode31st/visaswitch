@@ -61,7 +61,7 @@ export function Navbar() {
 
             {/* Country switcher pill */}
             {currentCountry && (
-              <div ref={dropdownRef} className="relative hidden sm:block">
+              <div ref={dropdownRef} className="relative">
                 <button
                   onClick={() => setOpen((v) => !v)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors hover:opacity-80"
@@ -70,8 +70,8 @@ export function Navbar() {
                   <span className={cn("text-[11px] font-bold px-1.5 py-0.5 rounded", countryMeta[currentCountry.code]?.color)}>
                     {countryMeta[currentCountry.code]?.abbr}
                   </span>
-                  <span className="text-sm" style={{ color: "var(--muted-foreground)" }}>{currentCountry.name}</span>
-                  <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", open && "rotate-180")} style={{ color: "var(--muted-foreground)" }} />
+                  <span className="hidden sm:inline text-sm" style={{ color: "var(--muted-foreground)" }}>{currentCountry.name}</span>
+                  <ChevronDown className={cn("hidden sm:block w-3.5 h-3.5 transition-transform", open && "rotate-180")} style={{ color: "var(--muted-foreground)" }} />
                 </button>
 
                 {/* Dropdown */}
@@ -86,7 +86,7 @@ export function Navbar() {
                         <button
                           key={c.code}
                           onClick={() => {
-                            router.push(`/${c.code}/guide`);
+                            router.push(`/${c.code}`);
                             setOpen(false);
                           }}
                           className={cn(
