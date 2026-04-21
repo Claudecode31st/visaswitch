@@ -241,7 +241,9 @@ html:not(.dark) .bg-gray-800.text-white {
 
 /* 3 ── Darken washed-out accent colors for light backgrounds */
 html:not(.dark) .text-emerald-400 { color: #047857 !important; } /* emerald-700 */
+html:not(.dark) [class*="text-emerald-3"] { color: #065f46 !important; } /* emerald-800 for 300/80 etc */
 html:not(.dark) .text-red-400     { color: #b91c1c !important; } /* red-700 */
+html:not(.dark) [class*="text-red-3"]     { color: #991b1b !important; } /* red-800 for 300/80 etc */
 html:not(.dark) .text-amber-400   { color: #b45309 !important; } /* amber-700 */
 html:not(.dark) [class*="text-amber-3"] { color: #92400e !important; } /* amber-800 for /90 variants */
 
@@ -266,7 +268,9 @@ html:not(.dark) .dark-surface .text-white        { color: white   !important; }
 html:not(.dark) .dark-surface .text-zinc-300     { color: #d4d4d8 !important; }
 html:not(.dark) .dark-surface .text-zinc-400     { color: #a1a1aa !important; }
 html:not(.dark) .dark-surface .text-emerald-400  { color: #34d399 !important; }
+html:not(.dark) .dark-surface [class*="text-emerald-3"] { color: #6ee7b7 !important; }
 html:not(.dark) .dark-surface .text-red-400      { color: #f87171 !important; }
+html:not(.dark) .dark-surface [class*="text-red-3"]     { color: #fca5a5 !important; }
 html:not(.dark) .dark-surface .text-amber-400    { color: #fbbf24 !important; }
 html:not(.dark) .dark-surface [class*="text-amber-3"] { color: #fcd34d !important; }
 html:not(.dark) .dark-surface [class*="border-white/"] {
