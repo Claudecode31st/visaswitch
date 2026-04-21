@@ -38,7 +38,7 @@ export default async function CountryPage({ params }: Props) {
   if (!isValidCountry(country)) notFound();
   const data = getCountryData(country)!;
 
-  const categoryCount = [...new Set(data.pathways.map((p) => p.category))].length;
+  const checklistCount = data.checklist.length;
   const permanentCount = data.pathways.filter((p) => p.validity === "Permanent").length;
 
   const difficultyColor = {
@@ -99,7 +99,7 @@ export default async function CountryPage({ params }: Props) {
           <div className="mt-12 grid grid-cols-3 gap-3 max-w-md">
             {[
               { label: "Visa pathways", value: data.pathways.length },
-              { label: "Categories", value: categoryCount },
+              { label: "Checklist tasks", value: checklistCount },
               { label: "Permanent options", value: permanentCount },
             ].map((stat) => (
               <div key={stat.label} className="glass rounded-xl p-4 text-center" style={{ border: "1px solid var(--border)" }}>
