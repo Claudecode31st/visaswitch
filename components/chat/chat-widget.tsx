@@ -56,14 +56,14 @@ function getActions(content: string, countryCode?: string): Action[] {
     if (/refusal|refused|appeal|reapply|second|recover/.test(lower))
       actions.push({ label: "Refusal recovery", href: `/${code}/recovery` });
   } else {
-    // No country context — suggest country landing pages based on mention
-    if (/australia|au\b|subclass/.test(lower))
+    // No country context — suggest country guides based on explicit country mention only
+    if (/australia|\bau\b|subclass/.test(lower))
       actions.push({ label: "Australia guide", href: "/au/guide" });
-    if (/uk|united kingdom|britain|skilled worker|graduate route/.test(lower))
+    if (/\buk\b|united kingdom|\bbritain\b|graduate route|skilled worker visa/.test(lower))
       actions.push({ label: "UK guide", href: "/uk/guide" });
-    if (/canada|express entry|pnp|pgwp/.test(lower))
+    if (/\bcanada\b|express entry|\bpnp\b|\bpgwp\b|\bcrs\b|\bircc\b/.test(lower))
       actions.push({ label: "Canada guide", href: "/ca/guide" });
-    if (/japan|engineer|hsp|working holiday jp/.test(lower))
+    if (/\bjapan\b|engineer.*visa|highly skilled|working holiday.*japan/.test(lower))
       actions.push({ label: "Japan guide", href: "/jp/guide" });
   }
 
@@ -76,18 +76,63 @@ function getActions(content: string, countryCode?: string): Action[] {
   }).slice(0, 3);
 }
 
-// ── Simple markdown renderer ────────────────────────────────────────────────
+// ── Markdown renderer ────────────────────────────────────────────────────────
 function parseMarkdown(text: string): string {
-  return text
-    .replace(/### (.+)$/gm, "<strong class='block mt-2 mb-0.5'>$1</strong>")
-    .replace(/## (.+)$/gm, "<strong class='block mt-2 mb-1 text-base'>$1</strong>")
-    .replace(/# (.+)$/gm, "<strong class='block mt-1 mb-1'>$1</strong>")
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/`([^`]+)`/g, "<code class='bg-black/10 dark:bg-white/10 px-1 rounded text-xs font-mono'>$1</code>")
-    .replace(/^[•\-\*] (.+)$/gm, "<li class='ml-3 list-disc'>$1</li>")
-    .replace(/^\d+\. (.+)$/gm, "<li class='ml-3 list-decimal'>$1</li>")
-    .replace(/\n{2,}/g, "</p><p class='mt-2'>")
-    .replace(/\n/g, "<br/>");
+  // Split into lines for block-level processing
+  const lines = text.split("\n");
+  const out: string[] = [];
+  let inUl = false;
+  let inOl = false;
+
+  const closeList = () => {
+    if (inUl) { out.push("</ul>"); inUl = false; }
+    if (inOl) { out.push("</ol>"); inOl = false; }
+  };
+
+  const inlineFormat = (s: string) =>
+    s
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/`([^`]+)`/g, "<code class='bg-black/10 dark:bg-white/10 px-1 rounded text-[11px] font-mono'>$1</code>");
+
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i];
+    const line = raw.trimEnd();
+
+    // Headings
+    if (/^### (.+)/.test(line)) {
+      closeList();
+      out.push(`<p class='font-semibold text-[13px] mt-3 mb-1'>${inlineFormat(line.replace(/^### /, ""))}</p>`);
+    } else if (/^## (.+)/.test(line)) {
+      closeList();
+      out.push(`<p class='font-bold text-[13px] mt-3 mb-1'>${inlineFormat(line.replace(/^## /, ""))}</p>`);
+    } else if (/^# (.+)/.test(line)) {
+      closeList();
+      out.push(`<p class='font-bold text-[14px] mt-3 mb-1'>${inlineFormat(line.replace(/^# /, ""))}</p>`);
+    }
+    // Bullet list
+    else if (/^[•\-\*] (.+)/.test(line)) {
+      if (!inUl) { closeList(); out.push("<ul class='mt-1.5 mb-1.5 space-y-1 pl-4'>"); inUl = true; }
+      out.push(`<li class='list-disc text-[13px] leading-snug'>${inlineFormat(line.replace(/^[•\-\*] /, ""))}</li>`);
+    }
+    // Numbered list
+    else if (/^\d+\. (.+)/.test(line)) {
+      if (!inOl) { closeList(); out.push("<ol class='mt-1.5 mb-1.5 space-y-1 pl-4'>"); inOl = true; }
+      out.push(`<li class='list-decimal text-[13px] leading-snug'>${inlineFormat(line.replace(/^\d+\. /, ""))}</li>`);
+    }
+    // Blank line
+    else if (line.trim() === "") {
+      closeList();
+      out.push("<div class='h-1.5'></div>");
+    }
+    // Normal paragraph line
+    else {
+      closeList();
+      out.push(`<p class='text-[13px] leading-relaxed'>${inlineFormat(line)}</p>`);
+    }
+  }
+
+  closeList();
+  return out.join("\n");
 }
 
 const STORAGE_KEY = "vs_chat_history";
@@ -126,12 +171,11 @@ export function ChatWidget() {
     setIsPWA(standalone);
   }, []);
 
-  // Load saved chat from localStorage on mount
+  // Load saved chat from localStorage on mount (restore messages but don't auto-open)
   useEffect(() => {
     const saved = loadMessages();
     if (saved.length) {
       setMessages(saved);
-      setOpen(true); // reopen chat if there's a saved history
     }
     setHydrated(true);
   }, []);
@@ -290,9 +334,6 @@ export function ChatWidget() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold leading-none" style={{ color: "var(--foreground)" }}>Visa Assistant</p>
-              <p className="text-[11px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>
-                {"AU · UK · CA · JP"}
-              </p>
             </div>
             {messages.length > 0 && (
               <button onClick={clearChat} className="p-1.5 rounded-lg hover:opacity-60 transition-opacity" title="Clear chat">
@@ -372,8 +413,8 @@ export function ChatWidget() {
                         </span>
                       ) : (
                         <div
-                          className="prose-sm break-words overflow-hidden"
-                          dangerouslySetInnerHTML={{ __html: `<p class='mt-0'>${parseMarkdown(msg.content)}</p>` }}
+                          className="break-words overflow-hidden"
+                          dangerouslySetInnerHTML={{ __html: parseMarkdown(msg.content) }}
                         />
                       )}
                     </div>
