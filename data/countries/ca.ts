@@ -115,7 +115,7 @@ export const caData: CountryData = {
         "Create your Express Entry profile at IRCC's website and enter the pool",
         "Monitor draws regularly — if your score isn't competitive, consider improving with a PNP nomination",
       ],
-      urgentNote: "Category-based draws now invite candidates with specific occupations or language scores regardless of overall CRS — check if your occupation has had targeted draws.",
+      urgentNote: "Category-based draws regularly invite candidates in healthcare, STEM, trades, French language, and agriculture regardless of overall CRS rank — check IRCC's draw history to see if your occupation category has had targeted invitations.",
       pathwayTo: ["citizenship"],
       relatedOccupations: ["Software Engineer", "Accountant", "Civil Engineer", "Registered Nurse", "Financial Analyst"],
       fromVisas: ["skilled", "pgwp", "visitor", "other"],
@@ -231,11 +231,10 @@ export const caData: CountryData = {
         { id: "admissibility", label: "Admissibility", description: "Health and character requirements", type: "character", required: true },
       ],
       pros: [
-        "Work up to 20 hours/week off-campus during regular academic sessions",
+        "Work up to 24 hours/week off-campus during regular academic sessions (increased from 20 hrs in late 2024)",
         "Full-time work during scheduled breaks and vacations",
         "Pathway to Post-Graduation Work Permit (PGWP) and then PR",
-        "Spouse or common-law partner may receive an open work permit",
-        "SDS stream available for eligible countries with faster processing",
+        "Spouse or common-law partner may receive an open work permit if enrolled in eligible graduate programs",
       ],
       cons: [
         "Must demonstrate intent to leave Canada — ties to home country tested",
@@ -244,9 +243,9 @@ export const caData: CountryData = {
         "Some programs not eligible for PGWP (e.g. short programs, certain colleges)",
       ],
       nextSteps: [
-        "Research PGWP-eligible programs and DLIs before applying — not all institutions produce PGWP-eligible graduates",
+        "Research PGWP-eligible programs and DLIs before applying — not all institutions or programs produce PGWP-eligible graduates",
         "Apply to your chosen DLI and obtain your acceptance letter",
-        "Check if you're eligible for the Student Direct Stream (SDS) — faster processing",
+        "Obtain a Provincial Attestation Letter (PAL) from your province — required for most undergraduate applicants since January 2024",
         "Demonstrate ties to home country alongside your financial evidence",
       ],
       pathwayTo: ["pgwp", "express-entry-cec"],
@@ -277,7 +276,7 @@ export const caData: CountryData = {
         "Open work permit — work for any employer in any role",
         "Duration matches length of study (up to 3 years for 2+ year programs)",
         "Builds the Canadian work experience required for CEC Express Entry",
-        "Spouse or common-law partner receives an open work permit",
+        "Spouse or common-law partner may receive an open work permit if PGWP holder is in TEER 0 or 1 occupation",
         "Very low cost relative to its immigration value",
       ],
       cons: [
@@ -494,7 +493,7 @@ export const caData: CountryData = {
       solutions: [
         "Submit 3–6 months of consistent bank statements from all accounts",
         "Include an employment letter confirming your current salary, position, and approved leave",
-        "For study permits, consider applying via SDS with a Guaranteed Investment Certificate (GIC)",
+        "Consider a Guaranteed Investment Certificate (GIC) as part of your financial evidence — it demonstrates funds are genuinely held",
         "Explain any large recent deposits with signed supporting letters",
       ],
       pathwaysAffected: ["visitor-visa", "study-permit"],
@@ -564,7 +563,7 @@ export const caData: CountryData = {
     { id: "ca-dli-letter", title: "Obtain letter of acceptance from a DLI", description: "You must have an acceptance letter from a Designated Learning Institution (DLI). Confirm the DLI number is listed on the IRCC DLI database — not all institutions qualify.", category: "document", dueWeeks: -8, priority: "critical", pathwayIds: ["study-permit"] },
     { id: "ca-study-funds", title: "Prepare financial evidence for tuition + living costs", description: "CAD $10,000/year minimum (outside Quebec) or CAD $11,000 (Quebec) for living, plus full tuition. Provide statements for accounts held in your name.", category: "financial", dueWeeks: -6, priority: "critical", pathwayIds: ["study-permit"] },
     { id: "ca-study-intention", title: "Prepare study purpose statement (SOP)", description: "A statement explaining why you chose Canada, your specific institution and program, and your plans after graduation. Strong SOPs are specific and show clear career logic.", category: "form", dueWeeks: -4, priority: "critical", pathwayIds: ["study-permit"] },
-    { id: "ca-study-pal", title: "Obtain Provincial Attestation Letter (PAL) if required", description: "Since January 2024, most undergraduate study permit applicants need a PAL from the provincial authority before IRCC will process the application.", category: "document", dueWeeks: -8, priority: "critical", pathwayIds: ["study-permit"] },
+    { id: "ca-study-pal", title: "Obtain Provincial Attestation Letter (PAL)", description: "Required for most undergraduate study permit applicants since January 2024. Your DLI or province provides the PAL — IRCC will not process the application without it. Master's, PhD, and some professional programs are exempt.", category: "document", dueWeeks: -8, priority: "critical", pathwayIds: ["study-permit"] },
 
     // ── PGWP ──────────────────────────────────────────────────────────────
     { id: "ca-pgwp-timing", title: "Apply within 180 days of receiving final marks/graduation notice", description: "The PGWP must be applied for within 180 days of receiving written confirmation of program completion. Missing this window makes you ineligible — there is no exception.", category: "form", dueWeeks: -2, priority: "critical", pathwayIds: ["pgwp"], link: "https://www.canada.ca/en/immigration-refugees-citizenship/services/study-canada/work/after-graduation/about.html", linkLabel: "PGWP — IRCC" },

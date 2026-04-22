@@ -85,7 +85,7 @@ export const ukData: CountryData = {
       tagline: "Study at a UK university with work rights and a clear path to Graduate status",
       processingTime: "3 weeks (outside UK)",
       validity: "Duration of course + 6 months",
-      cost: "£490 + £776/year IHS",
+      cost: "£524 + £776/year IHS (student rate)",
       difficulty: "moderate",
       popularity: "high",
       summary: "The UK Student Visa allows international students to study at a Home Office-licensed sponsor institution. It includes part-time work rights and is the primary route to the Graduate Visa. One of the most accessible paths to beginning a UK career.",
@@ -105,7 +105,7 @@ export const ukData: CountryData = {
       cons: [
         "Cannot switch into a Student visa from a Visitor visa while in the UK",
         "Cannot claim public funds (Universal Credit, NHS planned treatment, etc.)",
-        "Immigration Health Surcharge (IHS) adds significant cost — £776/year",
+        "Immigration Health Surcharge (IHS) — £776/year for students (reduced rate); £1,035/year for most other routes",
         "Must use IELTS for UKVI (not standard IELTS)",
       ],
       nextSteps: [
@@ -130,7 +130,7 @@ export const ukData: CountryData = {
       tagline: "Two to three years of unrestricted work rights after a UK degree",
       processingTime: "8 weeks",
       validity: "2 years (bachelor/masters); 3 years (PhD)",
-      cost: "£822",
+      cost: "£880",
       difficulty: "straightforward",
       popularity: "high",
       summary: "The Graduate Visa allows UK graduates to live and work — or look for work — in the UK for 2 years (3 for PhD graduates) with no employer sponsorship required. It is the bridge between student status and the Skilled Worker route.",
@@ -153,7 +153,7 @@ export const ukData: CountryData = {
       ],
       nextSteps: [
         "Apply online before your Student visa expires",
-        "Pay the £822 visa fee — processing takes up to 8 weeks",
+        "Pay the £880 visa fee — processing takes up to 8 weeks",
         "Start job hunting immediately using your unrestricted work rights",
         "If you secure a sponsored role, switch to the Skilled Worker route to continue accumulating qualifying years for ILR",
       ],
@@ -173,14 +173,14 @@ export const ukData: CountryData = {
       tagline: "The UK's main work visa — sponsored employment with a path to ILR",
       processingTime: "3–8 weeks",
       validity: "Up to 5 years (extendable)",
-      cost: "£719–£1,420 + IHS (depending on length)",
+      cost: "£769–£1,519 + IHS (outside UK, standard); £304–£590 (Health & Care workers)",
       difficulty: "moderate",
       popularity: "high",
       summary: "The Skilled Worker Visa replaced Tier 2 (General) and allows employers with a sponsor licence to hire skilled workers from outside the UK. After 5 years, it leads to Indefinite Leave to Remain (ILR). The most common long-term work route into the UK.",
       eligibility: [
         { id: "job-offer", label: "Job offer from a licensed sponsor", description: "Employer must hold a valid Skilled Worker sponsor licence", type: "sponsor", required: true },
         { id: "cos", label: "Certificate of Sponsorship (CoS)", description: "Assigned by the employer before you apply", type: "other", required: true },
-        { id: "salary", label: "Salary threshold — £38,700/year or going rate", description: "Whichever is higher — the general threshold increased significantly in April 2024", type: "financial", required: true },
+        { id: "salary", label: "Salary threshold — £41,700/year or going rate", description: "Whichever is higher — threshold was £38,700 from April 2024, then raised to £41,700 from July 2025", type: "financial", required: true },
         { id: "occupation", label: "Eligible occupation (RQF Level 3+)", description: "Role must be at RQF Level 3 or above on the eligible occupations list", type: "occupation", required: true },
         { id: "english", label: "English — B1 level", description: "IELTS UKVI 4.0 in each component, or degree from majority English-speaking country", type: "english", required: true },
       ],
@@ -189,13 +189,14 @@ export const ukData: CountryData = {
         "Bring your spouse/partner and dependent children",
         "Change jobs within the same occupation code without needing a new visa",
         "5 years leads to ILR (Indefinite Leave to Remain)",
-        "Certain shortage occupations have lower salary thresholds",
+        "Health & Care Worker route has significantly lower application fees (£304 for up to 3 years)",
       ],
       cons: [
         "Tied to a licensed sponsor employer — you cannot freelance or work for others",
-        "£38,700 salary threshold (April 2024) excludes many lower-paid roles",
+        "£41,700 salary threshold (July 2025) excludes many lower-paid roles",
         "Your employer must have and maintain a sponsor licence",
         "Changing employers requires a new Certificate of Sponsorship",
+        "The Shortage Occupation List was abolished in April 2024 — replaced by the Immigration Salary List with no salary discount",
       ],
       nextSteps: [
         "Secure a job offer from a UK employer with a valid Skilled Worker sponsor licence (check the register on GOV.UK)",
@@ -219,7 +220,7 @@ export const ukData: CountryData = {
       tagline: "Permanent UK settlement — live, work, and access services without restriction",
       processingTime: "6 months (standard); same-day (super priority service)",
       validity: "Permanent (unless absent from UK for 2+ consecutive years)",
-      cost: "£2,885",
+      cost: "£3,029",
       difficulty: "complex",
       popularity: "high",
       summary: "Indefinite Leave to Remain grants permanent permission to live and work in the UK without restrictions. It is the primary form of settlement and the step before British citizenship. Available after 5 years on the Skilled Worker, Global Talent, or similar qualifying routes.",
@@ -238,7 +239,7 @@ export const ukData: CountryData = {
         "Bring your family as dependants",
       ],
       cons: [
-        "£2,885 application fee — among the highest in the world",
+        "£3,029 application fee — among the highest in the world",
         "ILR can lapse if you spend 2+ consecutive years outside the UK",
         "Entire immigration history is scrutinised",
         "All conditions of prior visa must have been met throughout",
@@ -270,7 +271,7 @@ export const ukData: CountryData = {
       popularity: "low",
       summary: "The Global Talent Visa is for leaders or emerging leaders in academia, research, arts, culture, and digital technology. It requires endorsement from an approved UK body — the major hurdle — but offers the most freedom of any UK work visa, including fast-track ILR in 3 years.",
       eligibility: [
-        { id: "endorsement", label: "Endorsement from an approved body", description: "Tech Nation, UKRI, Arts Council England, British Academy, Royal Academy of Engineering, or Royal Society", type: "other", required: true },
+        { id: "endorsement", label: "Endorsement from an approved body", description: "Tech Nation (digital technology), UKRI, Arts Council England, British Academy, Royal Academy of Engineering, or Royal Society — each body covers a different field", type: "other", required: true },
         { id: "exceptional-talent", label: "Exceptional talent or exceptional promise", description: "Leading role in your field (talent) or clear potential for leadership (promise)", type: "other", required: true },
       ],
       pros: [
@@ -308,7 +309,7 @@ export const ukData: CountryData = {
       tagline: "Visit the UK for tourism, family, or business — up to 6 months",
       processingTime: "3 weeks (standard)",
       validity: "Up to 6 months per visit (10-year visa)",
-      cost: "£115",
+      cost: "£127",
       difficulty: "straightforward",
       popularity: "high",
       summary: "The Standard Visitor Visa allows you to visit the UK for tourism, business meetings, family visits, or medical treatment. A 10-year multiple-entry version is available. It does not grant work rights and cannot be switched to most other visa types from within the UK.",
@@ -355,7 +356,7 @@ export const ukData: CountryData = {
       summary: "The UK Family visa allows spouses, civil partners, unmarried partners (2+ years cohabiting), or dependant children to join a person who is settled or a British citizen in the UK. It is a 5-year route to ILR. The financial requirement and relationship evidence are the main hurdles.",
       eligibility: [
         { id: "sponsor", label: "Sponsor is a British citizen or settled person", description: "Or a person with refugee leave or humanitarian protection", type: "sponsor", required: true },
-        { id: "income", label: "Sponsor meets the minimum income requirement", description: "£29,000/year from 11 April 2024 — increasing to £38,700 by early 2025", type: "financial", required: true },
+        { id: "income", label: "Sponsor meets the minimum income requirement", description: "£29,000/year from April 2024 — the planned further increases to £34,500 and £38,700 were not implemented by the new government", type: "financial", required: true },
         { id: "relationship", label: "Genuine and subsisting relationship", description: "Married, civil partnership, or unmarried partners with 2+ years of cohabitation", type: "other", required: true },
         { id: "english", label: "English — A1 level (initial) / B1 level (FLR/ILR)", description: "Increases at each extension stage", type: "english", required: true },
       ],
@@ -366,7 +367,7 @@ export const ukData: CountryData = {
         "Pathway to British citizenship",
       ],
       cons: [
-        "High income threshold — £29,000+ increasing to £38,700 by 2025",
+        "Minimum income threshold of £29,000/year — the planned increase to £38,700 was not implemented",
         "Substantial relationship evidence required",
         "Long processing times (up to 24 weeks)",
         "Must meet English requirements at each stage",
@@ -377,7 +378,7 @@ export const ukData: CountryData = {
         "Take an approved A1 English test (e.g. IELTS Life Skills)",
         "Apply online — pay the visa fee and Immigration Health Surcharge for the full initial period",
       ],
-      urgentNote: "The income threshold is increasing in stages — check the current requirement at GOV.UK before applying.",
+      urgentNote: "The threshold has been £29,000/year since April 2024. Always verify the current figure at GOV.UK before applying — the rules changed with the 2024 change of government.",
       pathwayTo: ["ilr"],
       fromVisas: ["visitor", "other", "student", "skilled"],
       forGoals: ["family", "pr"],
@@ -482,13 +483,13 @@ export const ukData: CountryData = {
     },
     {
       id: "salary-threshold",
-      title: "Salary below the April 2024 threshold",
-      description: "The general threshold for Skilled Worker applications increased to £38,700 from April 2024, catching many applicants and existing workers out.",
+      title: "Salary below the current threshold (£41,700 from July 2025)",
+      description: "The general threshold rose from £26,200 to £38,700 in April 2024, then to £41,700 in July 2025. The Shortage Occupation List salary discount was abolished in April 2024 — there is no longer a discounted rate for shortage roles.",
       frequency: "common",
       solutions: [
-        "Confirm your offered salary explicitly meets the higher threshold — check the going rate for your specific occupation code",
-        "Check whether your occupation is on the shortage occupation list, which may carry a different (sometimes lower) threshold",
-        "If you're a current Skilled Worker renewing, check whether you're protected under transitional arrangements",
+        "Confirm your offered salary meets £41,700/year — check the going rate for your specific SOC code on GOV.UK",
+        "Check if your occupation is on the Immigration Salary List (replaced SOL in April 2024) — note: this only reduces the application fee, not the required salary",
+        "If you are a current Skilled Worker renewing, confirm whether any transitional protections apply to your specific start date",
         "Negotiate a salary increase with your employer before applying or renewing",
       ],
       pathwaysAffected: ["skilled-worker", "ilr"],
@@ -512,7 +513,7 @@ export const ukData: CountryData = {
     // ── UNIVERSAL ────────────────────────────────────────────────────────
     { id: "uk-passport", title: "Check passport validity and blank pages", description: "UK Visas & Immigration requires a valid passport with at least one blank page for the visa vignette sticker. Renew at least 6 weeks before applying.", category: "document", dueWeeks: -10, priority: "critical" },
     { id: "uk-biometrics", title: "Book biometric appointment (UKVCAS / VFS Global)", description: "After submitting the online application, book a biometric enrolment appointment. Popular slots fill 3–4 weeks out in major cities.", category: "other", dueWeeks: -3, priority: "critical", link: "https://www.gov.uk/biometric-residence-permits", linkLabel: "Biometrics & BRP — GOV.UK" },
-    { id: "uk-pay-fee", title: "Pay application fee and immigration health surcharge (IHS)", description: "IHS is AUD £1,035/year per person and must be paid upfront for the full visa duration. Keep your payment reference number.", category: "financial", dueWeeks: -2, priority: "critical", link: "https://www.gov.uk/healthcare-immigration-application", linkLabel: "Pay IHS — GOV.UK" },
+    { id: "uk-pay-fee", title: "Pay application fee and immigration health surcharge (IHS)", description: "IHS is £1,035/year per person for most routes (£776/year for students and Youth Mobility). Must be paid upfront for the full visa duration. Keep your payment reference number.", category: "financial", dueWeeks: -2, priority: "critical", link: "https://www.gov.uk/healthcare-immigration-application", linkLabel: "Pay IHS — GOV.UK" },
     { id: "uk-tb-test", title: "Tuberculosis (TB) test if applying from a listed country", description: "Applicants from certain countries must take a TB test from an approved clinic before applying. Check the UK government's country list — results are valid for 6 months.", category: "health", dueWeeks: -8, priority: "high" },
 
     // ── STUDENT VISA ──────────────────────────────────────────────────────
@@ -528,7 +529,7 @@ export const ukData: CountryData = {
 
     // ── SKILLED WORKER ────────────────────────────────────────────────────
     { id: "uk-cos", title: "Obtain Certificate of Sponsorship (CoS) from employer", description: "Your UK employer must be a licensed sponsor and must assign a CoS to you. The CoS reference number goes in your application. Check it includes the correct SOC code and salary.", category: "document", dueWeeks: -6, priority: "critical", pathwayIds: ["skilled-worker"], link: "https://www.gov.uk/government/publications/register-of-licensed-sponsors-workers", linkLabel: "Check sponsor register — GOV.UK" },
-    { id: "uk-salary-check", title: "Verify salary meets both the general and occupation threshold", description: "From April 2024: general threshold is £38,700/year (or £30,960 for shortage occupations). Also verify the going rate for your specific SOC code — you must meet whichever is higher.", category: "other", dueWeeks: -6, priority: "critical", pathwayIds: ["skilled-worker"], link: "https://www.gov.uk/skilled-worker-visa/your-job", linkLabel: "Points calculator — GOV.UK" },
+    { id: "uk-salary-check", title: "Verify salary meets both the general and occupation threshold", description: "From July 2025: general threshold is £41,700/year (was £38,700 from April 2024). The Shortage Occupation List was abolished in April 2024 — replaced by the Immigration Salary List with no salary discount. Verify the going rate for your specific SOC code — you must meet whichever is higher.", category: "other", dueWeeks: -6, priority: "critical", pathwayIds: ["skilled-worker"], link: "https://www.gov.uk/skilled-worker-visa/your-job", linkLabel: "Skilled Worker job eligibility — GOV.UK" },
     { id: "uk-english-b1", title: "Obtain English language evidence (B1 CEFR minimum)", description: "Acceptable sources: approved SELT test, degree taught in English, or passport from a majority English-speaking country. Check your specific acceptable evidence.", category: "document", dueWeeks: -8, priority: "critical", pathwayIds: ["skilled-worker"], link: "https://ielts.org/book-a-test", linkLabel: "Book IELTS — ielts.org" },
     { id: "uk-skilled-funds", title: "Prepare maintenance funds evidence (£1,270 in bank)", description: "Must hold £1,270 for 28 consecutive days ending no more than 31 days before application. Bank statements must clearly show account holder name and institution.", category: "financial", dueWeeks: -5, priority: "high", pathwayIds: ["skilled-worker"] },
 
@@ -544,7 +545,7 @@ export const ukData: CountryData = {
     { id: "uk-visitor-ties", title: "Document home country ties", description: "Employment confirmation, owned property, enrolled study, or dependent family members at home. The stronger and more documented the ties, the better.", category: "document", dueWeeks: -3, priority: "critical", pathwayIds: ["visitor-visa"] },
 
     // ── FAMILY VISA ───────────────────────────────────────────────────────
-    { id: "uk-family-financial", title: "Confirm UK sponsor meets financial threshold (£29,000+)", description: "From April 2024: the UK sponsor must earn at least £29,000/year. Provide 6 months of payslips, a P60, and an employer letter confirming the ongoing employment.", category: "financial", dueWeeks: -6, priority: "critical", pathwayIds: ["family-visa"] },
+    { id: "uk-family-financial", title: "Confirm UK sponsor meets financial threshold (£29,000/year)", description: "From April 2024: the UK sponsor must earn at least £29,000/year. The planned further increases to £34,500 and £38,700 were not implemented. Provide 6 months of payslips, a P60, and an employer letter confirming ongoing employment.", category: "financial", dueWeeks: -6, priority: "critical", pathwayIds: ["family-visa"] },
     { id: "uk-family-relationship", title: "Compile comprehensive relationship evidence", description: "Marriage or civil partnership certificate, joint financial documents, photos, correspondence. For unmarried partners: 2 years of cohabitation evidence.", category: "document", dueWeeks: -6, priority: "critical", pathwayIds: ["family-visa"] },
     { id: "uk-english-a1", title: "Obtain English A1 CEFR evidence (A2 for FLR, B1 for ILR)", description: "Family visa entry requires A1; extensions require A2; ILR requires B1. An approved SELT from an authorised test centre is required.", category: "document", dueWeeks: -8, priority: "critical", pathwayIds: ["family-visa"], link: "https://ielts.org/book-a-test", linkLabel: "Book IELTS — ielts.org" },
   ],
@@ -560,7 +561,7 @@ export const ukData: CountryData = {
     { id: "uk-financial-insufficient", label: "Insufficient or questionable financial evidence", weight: 20, description: "For student and visitor visas, the 28-day consecutive balance requirement is strictly enforced. Funds that dip below the threshold on any day within the period invalidate the evidence.", mitigation: "Use a single stable account with a clean balance history. Pull the statements as close to the application date as possible. If using a sponsor's funds, include all required sponsor documents.", pathwayIds: ["visitor-visa", "student-visa", "family-visa"] },
 
     // ── SKILLED WORKER ────────────────────────────────────────────────────
-    { id: "uk-salary-below-threshold", label: "Salary or going rate below the required threshold", weight: 28, description: "The Skilled Worker visa requires meeting both the general salary threshold AND the occupation-specific going rate. Failing either is an automatic refusal.", mitigation: "Re-check the going rate table for your SOC code before accepting a salary offer. If the salary is marginal, explore whether you qualify for a tradeable points discount.", pathwayIds: ["skilled-worker", "ilr"] },
+    { id: "uk-salary-below-threshold", label: "Salary or going rate below the required threshold", weight: 28, description: "The Skilled Worker visa requires meeting both the general salary threshold (£41,700 from July 2025) AND the occupation-specific going rate. The Shortage Occupation List salary discount was abolished in April 2024. Failing either threshold is an automatic refusal.", mitigation: "Re-check the going rate table for your specific SOC code at GOV.UK before accepting a salary offer. Ensure the salary explicitly meets £41,700 or the going rate, whichever is higher.", pathwayIds: ["skilled-worker", "ilr"] },
     { id: "uk-cos-issues", label: "Certificate of Sponsorship (CoS) errors or employer non-compliance", weight: 22, description: "Errors on the CoS (wrong SOC code, incorrect salary, wrong start date) cause delays or refusals. Employers with compliance issues risk their sponsor licence.", mitigation: "Review every field on the CoS before it is assigned. Check your employer is on the UK's Register of Licensed Sponsors and has no suspension or revocation notices.", pathwayIds: ["skilled-worker"] },
     { id: "uk-wrong-english-test", label: "English test not from an approved SELT provider", weight: 25, description: "Standard IELTS is NOT accepted — you must take IELTS UKVI at an authorised centre. Using the wrong test type is a common and costly mistake.", mitigation: "Verify your test is from the approved SELT list on the UKVI website. Book IELTS UKVI specifically — it costs more and must be taken at a British Council or IDP centre.", pathwayIds: ["student-visa", "skilled-worker", "family-visa", "ilr"] },
 
