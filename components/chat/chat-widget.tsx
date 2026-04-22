@@ -96,7 +96,8 @@ export function ChatWidget() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [isPWA, setIsPWA] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);  // the messages container
+  const scrollRef = useRef<HTMLDivElement>(null);        // messages container
+  const streamingMsgRef = useRef<HTMLDivElement>(null);  // top of streaming message
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const streamingIdRef = useRef<string | null>(null);
@@ -117,22 +118,19 @@ export function ChatWidget() {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
 
-  // Scroll to bottom of messages container
-  function scrollToBottom(smooth = true) {
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "instant" });
-  }
-
-  // When a new message appears, scroll to bottom instantly
+  // When a new assistant message starts, scroll its top into view so the
+  // first line is always visible. During streaming we do NOT force-scroll,
+  // letting the user read from the top naturally.
   useEffect(() => {
-    scrollToBottom(!streaming);
+    if (streaming) {
+      // Scroll the top of the new assistant bubble into view
+      streamingMsgRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      // After streaming ends, scroll the bottom into view so action buttons are visible
+      const el = scrollRef.current;
+      if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    }
   }, [messages.length]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // During streaming, keep scrolling to bottom so user follows the text
-  useEffect(() => {
-    if (streaming) scrollToBottom(false);
-  }, [messages, streaming]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function sendMessage(text?: string) {
     const content = (text ?? input).trim();
@@ -302,10 +300,11 @@ export function ChatWidget() {
             {messages.map((msg, i) => {
               const isLast = i === messages.length - 1;
               const isLastAssistant = isLast && msg.role === "assistant";
+              const isStreamingMsg = isLastAssistant && streaming;
               const showActions = isLastAssistant && !streaming && !msg.error && actions.length > 0;
 
               return (
-                <div key={msg.id} className="space-y-2">
+                <div key={msg.id} className="space-y-2" ref={isStreamingMsg ? streamingMsgRef : undefined}>
                   <div className={cn("flex gap-2.5", msg.role === "user" && "flex-row-reverse")}>
                     {/* Avatar */}
                     <div
