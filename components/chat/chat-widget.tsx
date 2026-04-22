@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   MessageCircle, X, Send, Globe, User, Loader2, AlertTriangle, RotateCw,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { countryList } from "@/data";
@@ -15,6 +16,11 @@ interface Message {
   error?: boolean;
 }
 
+interface Action {
+  label: string;
+  href: string;
+}
+
 const SUGGESTIONS = [
   "What visa do I need to work in Australia?",
   "How long does a UK Skilled Worker visa take?",
@@ -22,17 +28,64 @@ const SUGGESTIONS = [
   "Can I study in Japan on a working holiday?",
 ];
 
+// ── Suggest actions based on response content + country ────────────────────
+function getActions(content: string, countryCode?: string): Action[] {
+  const lower = content.toLowerCase();
+  const code = countryCode && ["au", "uk", "ca", "jp"].includes(countryCode)
+    ? countryCode : null;
+
+  const actions: Action[] = [];
+
+  // Always offer the full guide for the current country
+  if (code) {
+    if (/work|employ|skill|sponsor|occupation|subclass|482|189|190|485|skilled worker|express entry|engineer/.test(lower))
+      actions.push({ label: "Start visa guide", href: `/${code}/guide` });
+
+    if (/pathway|option|visa type|which visa|right visa|compare/.test(lower))
+      actions.push({ label: "View all pathways", href: `/${code}/pathways` });
+
+    if (/eligib|qualify|requirement|criteria|age|english|point/.test(lower))
+      actions.push({ label: "Check my eligibility", href: `/${code}/guide` });
+
+    if (/risk|refus|reject|denied|chance|success|problem/.test(lower))
+      actions.push({ label: "Run risk audit", href: `/${code}/audit` });
+
+    if (/checklist|document|prepare|gather|evidence|proof/.test(lower))
+      actions.push({ label: "Build my checklist", href: `/${code}/planner` });
+
+    if (/refusal|refused|appeal|reapply|second|recover/.test(lower))
+      actions.push({ label: "Refusal recovery", href: `/${code}/recovery` });
+  } else {
+    // No country context — suggest country landing pages based on mention
+    if (/australia|au\b|subclass/.test(lower))
+      actions.push({ label: "Australia guide", href: "/au/guide" });
+    if (/uk|united kingdom|britain|skilled worker|graduate route/.test(lower))
+      actions.push({ label: "UK guide", href: "/uk/guide" });
+    if (/canada|express entry|pnp|pgwp/.test(lower))
+      actions.push({ label: "Canada guide", href: "/ca/guide" });
+    if (/japan|engineer|hsp|working holiday jp/.test(lower))
+      actions.push({ label: "Japan guide", href: "/jp/guide" });
+  }
+
+  // Deduplicate by href and limit to 3
+  const seen = new Set<string>();
+  return actions.filter((a) => {
+    if (seen.has(a.href)) return false;
+    seen.add(a.href);
+    return true;
+  }).slice(0, 3);
+}
+
+// ── Simple markdown renderer ────────────────────────────────────────────────
 function parseMarkdown(text: string): string {
   return text
-    // Bold
+    .replace(/### (.+)$/gm, "<strong class='block mt-2 mb-0.5'>$1</strong>")
+    .replace(/## (.+)$/gm, "<strong class='block mt-2 mb-1 text-base'>$1</strong>")
+    .replace(/# (.+)$/gm, "<strong class='block mt-1 mb-1'>$1</strong>")
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    // Inline code
     .replace(/`([^`]+)`/g, "<code class='bg-black/10 dark:bg-white/10 px-1 rounded text-xs font-mono'>$1</code>")
-    // Bullet points
-    .replace(/^[•\-] (.+)$/gm, "<li class='ml-3 list-disc'>$1</li>")
-    // Numbered list
+    .replace(/^[•\-\*] (.+)$/gm, "<li class='ml-3 list-disc'>$1</li>")
     .replace(/^\d+\. (.+)$/gm, "<li class='ml-3 list-decimal'>$1</li>")
-    // Line breaks
     .replace(/\n{2,}/g, "</p><p class='mt-2'>")
     .replace(/\n/g, "<br/>");
 }
@@ -43,12 +96,13 @@ export function ChatWidget() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [isPWA, setIsPWA] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);  // the messages container
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const streamingIdRef = useRef<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
-  // Detect country context from current pathname
   const countryCode = pathname.split("/")[1];
   const currentCountry = countryList.find((c) => c.code === countryCode);
 
@@ -60,14 +114,25 @@ export function ChatWidget() {
   }, []);
 
   useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
+    if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
 
+  // Scroll to bottom of messages container
+  function scrollToBottom(smooth = true) {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "instant" });
+  }
+
+  // When a new message appears, scroll to bottom instantly
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, streaming]);
+    scrollToBottom(!streaming);
+  }, [messages.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // During streaming, keep scrolling to bottom so user follows the text
+  useEffect(() => {
+    if (streaming) scrollToBottom(false);
+  }, [messages, streaming]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function sendMessage(text?: string) {
     const content = (text ?? input).trim();
@@ -75,6 +140,8 @@ export function ChatWidget() {
 
     const userMsg: Message = { id: crypto.randomUUID(), role: "user", content };
     const assistantId = crypto.randomUUID();
+    streamingIdRef.current = assistantId;
+
     setMessages((prev) => [
       ...prev,
       userMsg,
@@ -100,7 +167,6 @@ export function ChatWidget() {
       });
 
       if (!res.ok || !res.body) {
-        // Only use server message for short, plain-text errors (not HTML dumps)
         const raw = await res.text();
         const isPlain = raw.length < 300 && !raw.trimStart().startsWith("<");
         throw new Error(isPlain ? raw : res.status >= 500
@@ -125,23 +191,16 @@ export function ChatWidget() {
       if (err instanceof Error && err.name === "AbortError") return;
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
       setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId
-            ? { ...m, content: msg, error: true }
-            : m
-        )
+        prev.map((m) => m.id === assistantId ? { ...m, content: msg, error: true } : m)
       );
     } finally {
       setStreaming(false);
-      abortRef.current = null;
+      streamingIdRef.current = null;
     }
   }
 
   function handleKey(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   }
 
   function clearChat() {
@@ -151,6 +210,10 @@ export function ChatWidget() {
   }
 
   const showSuggestions = messages.length === 0;
+  const lastAssistant = !streaming
+    ? messages.filter((m) => m.role === "assistant" && !m.error && m.content).at(-1)
+    : null;
+  const actions = lastAssistant ? getActions(lastAssistant.content, countryCode) : [];
 
   return (
     <>
@@ -160,7 +223,6 @@ export function ChatWidget() {
         className={cn(
           "fixed z-40 flex items-center justify-center rounded-full shadow-lg transition-all hover:scale-105 active:scale-95",
           isPWA ? "bottom-[calc(72px+env(safe-area-inset-bottom,0px)+12px)] right-4" : "bottom-6 right-4",
-          "w-13 h-13"
         )}
         style={{ background: "var(--primary)", color: "var(--primary-foreground)", width: 52, height: 52 }}
         aria-label={open ? "Close chat" : "Open visa assistant"}
@@ -173,9 +235,7 @@ export function ChatWidget() {
         <div
           className={cn(
             "fixed z-40 flex flex-col rounded-2xl border shadow-2xl overflow-hidden",
-            // Mobile: full-width bottom sheet above the button
             "bottom-[calc(72px+env(safe-area-inset-bottom,0px)+12px)] inset-x-3",
-            // Desktop: compact side panel
             "sm:inset-x-auto sm:right-4 sm:w-[380px]",
             isPWA
               ? "sm:bottom-[calc(72px+env(safe-area-inset-bottom,0px)+12px)]"
@@ -184,7 +244,7 @@ export function ChatWidget() {
           style={{
             background: "var(--background)",
             borderColor: "var(--border)",
-            maxHeight: "min(560px, calc(100dvh - 180px))",
+            maxHeight: "min(580px, calc(100dvh - 160px))",
           }}
         >
           {/* Header */}
@@ -210,10 +270,10 @@ export function ChatWidget() {
             </button>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 min-h-0">
+          {/* Messages — scrollable container */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3 min-h-0">
 
-            {/* Welcome */}
+            {/* Welcome + suggestions */}
             {showSuggestions && (
               <div className="space-y-3">
                 <div className="flex gap-2.5">
@@ -239,48 +299,73 @@ export function ChatWidget() {
             )}
 
             {/* Message list */}
-            {messages.map((msg) => (
-              <div key={msg.id} className={cn("flex gap-2.5", msg.role === "user" && "flex-row-reverse")}>
-                {/* Avatar */}
-                <div className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
-                  msg.role === "user" ? "bg-zinc-200 dark:bg-zinc-700" : ""
-                )}
-                  style={msg.role === "assistant" ? { background: "var(--primary)" } : undefined}>
-                  {msg.role === "assistant"
-                    ? <Globe className="w-3.5 h-3.5" style={{ color: "var(--primary-foreground)" }} />
-                    : <User className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />}
-                </div>
+            {messages.map((msg, i) => {
+              const isLast = i === messages.length - 1;
+              const isLastAssistant = isLast && msg.role === "assistant";
+              const showActions = isLastAssistant && !streaming && !msg.error && actions.length > 0;
 
-                {/* Bubble */}
-                <div className={cn(
-                  "rounded-2xl px-3 py-2.5 text-sm leading-relaxed max-w-[82%]",
-                  msg.role === "user"
-                    ? "rounded-tr-sm"
-                    : "rounded-tl-sm",
-                  msg.error && "border border-red-500/30"
-                )}
-                  style={{
-                    background: msg.role === "user" ? "var(--primary)" : "var(--muted)",
-                    color: msg.role === "user" ? "var(--primary-foreground)" : "var(--foreground)",
-                  }}>
-                  {msg.role === "assistant" && msg.content === "" ? (
-                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: "var(--muted-foreground)" }} />
-                  ) : msg.error ? (
-                    <span className="flex items-center gap-1.5 text-red-500 dark:text-red-400">
-                      <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" /> {msg.content}
-                    </span>
-                  ) : (
+              return (
+                <div key={msg.id} className="space-y-2">
+                  <div className={cn("flex gap-2.5", msg.role === "user" && "flex-row-reverse")}>
+                    {/* Avatar */}
                     <div
-                      className="prose-sm"
-                      dangerouslySetInnerHTML={{ __html: `<p class='mt-0'>${parseMarkdown(msg.content)}</p>` }}
-                    />
+                      className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                      style={msg.role === "assistant"
+                        ? { background: "var(--primary)" }
+                        : { background: "var(--muted)" }}>
+                      {msg.role === "assistant"
+                        ? <Globe className="w-3.5 h-3.5" style={{ color: "var(--primary-foreground)" }} />
+                        : <User className="w-3.5 h-3.5" style={{ color: "var(--foreground)" }} />}
+                    </div>
+
+                    {/* Bubble */}
+                    <div
+                      className={cn(
+                        "rounded-2xl px-3 py-2.5 text-sm leading-relaxed max-w-[82%]",
+                        msg.role === "user" ? "rounded-tr-sm" : "rounded-tl-sm",
+                        msg.error && "border border-red-500/30"
+                      )}
+                      style={{
+                        background: msg.role === "user" ? "var(--primary)" : "var(--muted)",
+                        color: msg.role === "user" ? "var(--primary-foreground)" : "var(--foreground)",
+                      }}>
+                      {msg.role === "assistant" && msg.content === "" ? (
+                        <Loader2 className="w-4 h-4 animate-spin" style={{ color: "var(--muted-foreground)" }} />
+                      ) : msg.error ? (
+                        <span className="flex items-center gap-1.5 text-red-500 dark:text-red-400">
+                          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" /> {msg.content}
+                        </span>
+                      ) : (
+                        <div
+                          className="prose-sm"
+                          dangerouslySetInnerHTML={{ __html: `<p class='mt-0'>${parseMarkdown(msg.content)}</p>` }}
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action buttons — shown below last assistant message */}
+                  {showActions && (
+                    <div className="flex flex-wrap gap-2 pl-8">
+                      {actions.map((action) => (
+                        <button
+                          key={action.href}
+                          onClick={() => { router.push(action.href); setOpen(false); }}
+                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full border transition-all hover:opacity-80 active:scale-95"
+                          style={{ borderColor: "var(--border)", background: "var(--muted)", color: "var(--foreground)" }}
+                        >
+                          {action.label}
+                          <ArrowRight className="w-3 h-3" />
+                        </button>
+                      ))}
+                    </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
-            <div ref={bottomRef} />
+            {/* Bottom anchor */}
+            <div style={{ height: 1 }} />
           </div>
 
           {/* Disclaimer */}
