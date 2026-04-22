@@ -90,12 +90,24 @@ function parseMarkdown(text: string): string {
     .replace(/\n/g, "<br/>");
 }
 
+const STORAGE_KEY = "vs_chat_history";
+
+function loadMessages(): Message[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as Message[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch { return []; }
+}
+
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [isPWA, setIsPWA] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);        // messages container
   const streamingMsgRef = useRef<HTMLDivElement>(null);  // top of streaming message
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -113,6 +125,28 @@ export function ChatWidget() {
       (navigator as { standalone?: boolean }).standalone === true;
     setIsPWA(standalone);
   }, []);
+
+  // Load saved chat from localStorage on mount
+  useEffect(() => {
+    const saved = loadMessages();
+    if (saved.length) {
+      setMessages(saved);
+      setOpen(true); // reopen chat if there's a saved history
+    }
+    setHydrated(true);
+  }, []);
+
+  // Persist messages to localStorage whenever they change (skip until hydrated)
+  useEffect(() => {
+    if (!hydrated) return;
+    if (messages.length === 0) {
+      localStorage.removeItem(STORAGE_KEY);
+    } else {
+      // Only save completed messages (not mid-stream empty ones)
+      const toSave = messages.filter((m) => m.content !== "" || m.role === "user");
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    }
+  }, [messages, hydrated]);
 
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
@@ -206,6 +240,7 @@ export function ChatWidget() {
     abortRef.current?.abort();
     setMessages([]);
     setStreaming(false);
+    localStorage.removeItem(STORAGE_KEY);
   }
 
   const showSuggestions = messages.length === 0;
