@@ -3,7 +3,7 @@ export type CountryCode = "au" | "uk" | "ca" | "jp";
 // Visa selector values per country — used by the PathwaysChecker filter panel
 export type AuCurrentVisa = "whv" | "student" | "graduate" | "skilled" | "visitor" | "other";
 export type UkCurrentVisa = "student" | "graduate" | "skilled" | "visitor" | "other";
-export type CaCurrentVisa = "study" | "pgwp" | "skilled" | "visitor" | "other";
+export type CaCurrentVisa = "study" | "pgwp" | "skilled" | "iec" | "visitor" | "other";
 export type JpCurrentVisa = "student" | "work" | "whv" | "visitor" | "other";
 export type AnyCurrentVisa = AuCurrentVisa | UkCurrentVisa | CaCurrentVisa | JpCurrentVisa;
 

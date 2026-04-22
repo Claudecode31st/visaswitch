@@ -12,6 +12,7 @@ export const caData: CountryData = {
     { value: "study", label: "Study Permit", sublabel: "Enrolled at a Canadian DLI", iconName: "GraduationCap" },
     { value: "pgwp", label: "Post-Graduation Work Permit", sublabel: "Open work permit after graduation", iconName: "Award" },
     { value: "skilled", label: "Work Permit / LMIA-Based", sublabel: "Employer-specific or open work permit", iconName: "Briefcase" },
+    { value: "iec", label: "IEC / Working Holiday", sublabel: "International Experience Canada work permit", iconName: "Backpack" },
     { value: "visitor", label: "Visitor Visa / eTA", sublabel: "Temporary resident in Canada", iconName: "Plane" },
     { value: "other", label: "Outside Canada / No Visa", sublabel: "Applying from offshore", iconName: "Globe" },
   ],
@@ -53,23 +54,32 @@ export const caData: CountryData = {
       business: ["startup-visa"],
       all: ["express-entry-cec", "pnp", "express-entry-fsw", "work-permit-lmia"],
     },
+    iec: {
+      stay: ["iec-working-holiday"],
+      pr: ["express-entry-cec", "express-entry-fsw", "pnp"],
+      sponsored: ["work-permit-lmia"],
+      study: ["study-permit"],
+      family: ["spousal-sponsorship"],
+      business: ["startup-visa"],
+      all: ["express-entry-cec", "pnp", "express-entry-fsw", "work-permit-lmia"],
+    },
     visitor: {
-      stay: ["visitor-visa"],
+      stay: ["visitor-visa", "iec-working-holiday"],
       pr: ["express-entry-fsw", "pnp", "spousal-sponsorship"],
       sponsored: ["work-permit-lmia"],
       study: ["study-permit"],
       family: ["spousal-sponsorship"],
       business: ["startup-visa"],
-      all: ["express-entry-fsw", "study-permit", "spousal-sponsorship", "pnp"],
+      all: ["iec-working-holiday", "express-entry-fsw", "study-permit", "spousal-sponsorship", "pnp"],
     },
     other: {
-      stay: ["visitor-visa"],
+      stay: ["visitor-visa", "iec-working-holiday"],
       pr: ["express-entry-fsw", "pnp", "spousal-sponsorship"],
       sponsored: ["work-permit-lmia"],
       study: ["study-permit"],
       family: ["spousal-sponsorship"],
       business: ["startup-visa"],
-      all: ["express-entry-fsw", "study-permit", "visitor-visa", "pnp"],
+      all: ["iec-working-holiday", "express-entry-fsw", "study-permit", "visitor-visa", "pnp"],
     },
   },
 
@@ -469,6 +479,53 @@ export const caData: CountryData = {
       fromVisas: ["visitor", "other"],
       forGoals: ["business", "pr"],
     },
+    {
+      id: "iec-working-holiday",
+      name: "IEC Working Holiday",
+      category: "working-holiday",
+      categoryLabel: "Working Holiday",
+      iconBg: "bg-emerald-100",
+      iconColor: "text-emerald-700",
+      accentColor: "border-emerald-400",
+      tagline: "Open work permit for young adults — no job offer, no employer tie",
+      processingTime: "2–8 weeks (after pool selection)",
+      validity: "Up to 2 years (1 year for some countries)",
+      cost: "CAD 161 (application) + CAD 100 (open work permit holder fee) = CAD 261 total",
+      costNumeric: 261,
+      difficulty: "straightforward",
+      popularity: "high",
+      summary: "The International Experience Canada (IEC) Working Holiday permit is an open work permit allowing young adults from 36+ eligible countries to live, travel, and work for any Canadian employer for up to 1–2 years. There is no job offer required and no employer tie. Applications are submitted to a pool, and IRCC issues Invitations to Apply (ITAs) through regular draws. It is the most accessible route to Canadian work experience and is a popular first step before transitioning to Express Entry.",
+      eligibility: [
+        { id: "nationality", label: "Citizen of an IEC-eligible country (36+)", description: "Eligible countries include Australia, UK, France, Germany, Ireland, Japan, South Korea, NZ, Netherlands, Spain, Taiwan, and many others. The list changes — verify your country is currently active on the IRCC website.", type: "other", required: true },
+        { id: "age", label: "Aged 18–30 (or 18–35 for some countries)", description: "Age at the time of submitting your pool profile, not at the time of application. Australia, UK, and some other countries have a 35 upper limit — check your country's bilateral agreement.", type: "age", required: true },
+        { id: "passport", label: "Valid passport from the eligible country", description: "Must hold a passport — not just citizenship — from the eligible country for the full intended period of work in Canada", type: "other", required: true },
+        { id: "funds", label: "CAD 2,500 in available funds", description: "Must demonstrate you have at least CAD 2,500 available to support yourself on arrival. Bank statement or equivalent financial evidence required.", type: "financial", required: true },
+      ],
+      pros: [
+        "Open work permit — work for any Canadian employer in any job, in any province",
+        "No job offer required at application stage",
+        "Very low total cost (CAD 261) compared to employer-sponsored routes",
+        "1–2 years of Canadian work experience significantly boosts Express Entry CRS score via the Canadian Experience Class",
+        "Good pathway to PGWP equivalent work experience and eventual PR",
+      ],
+      cons: [
+        "Pool-based system — an ITA is not guaranteed even if you meet all requirements",
+        "Age cap: must apply before turning 31 (or 36 for some nationalities)",
+        "Can only be used once per country of citizenship",
+        "Does not lead directly to PR — must transition to another route (Express Entry, PNP, etc.)",
+        "Annual IEC quotas per country are limited — pools can be competitive for popular countries",
+      ],
+      nextSteps: [
+        "Check if your country's IEC Working Holiday category is currently open on the IRCC website",
+        "Create an IRCC account and submit a pool profile during an active intake period",
+        "Wait for an Invitation to Apply (ITA) — if selected, you have ~20 days to submit your full application",
+        "Once you have your work permit, travel to Canada and start working — keep track of Canadian work experience for future Express Entry CEC applications",
+      ],
+      urgentNote: "IEC pools for popular countries (Australia, UK, France) can fill quickly or have limited annual quotas. Check the IRCC IEC page at the start of each calendar year — most country categories open in January–February.",
+      pathwayTo: ["express-entry-cec", "pnp"],
+      fromVisas: ["visitor", "other"],
+      forGoals: ["stay", "pr"],
+    },
   ],
 
   refusalReasons: [
@@ -578,6 +635,12 @@ export const caData: CountryData = {
     { id: "ca-relationship-evidence", title: "Compile comprehensive relationship evidence package", description: "Joint documents (bank accounts, lease, insurance), photos across multiple years, communications history, travel evidence, statutory declarations from people who know the couple.", category: "document", dueWeeks: -6, priority: "critical", pathwayIds: ["spousal-sponsorship"] },
     { id: "ca-marriage-certificate", title: "Obtain official marriage certificate and translations", description: "The marriage certificate must be translated by a certified translator if not in English or French. For common law: 12 months of cohabitation evidence is required.", category: "document", dueWeeks: -6, priority: "critical", pathwayIds: ["spousal-sponsorship"] },
 
+    // ── IEC WORKING HOLIDAY ───────────────────────────────────────────────
+    { id: "ca-iec-eligibility", title: "Confirm your country's IEC Working Holiday category is open", description: "IEC pools open at different times each year and have annual quotas per country. Visit the IRCC IEC page to check whether your country's Working Holiday category is currently accepting pool submissions.", category: "other", dueWeeks: -8, priority: "critical", pathwayIds: ["iec-working-holiday"], link: "https://www.canada.ca/en/immigration-refugees-citizenship/services/work-canada/iec/eligibility.html", linkLabel: "IEC eligibility — IRCC" },
+    { id: "ca-iec-pool-profile", title: "Submit your IEC pool profile during an active intake period", description: "Create an IRCC account, complete your pool profile, and submit it during an open intake window. You will receive an Invitation to Apply (ITA) if your profile is selected. You have approximately 20 days to respond to an ITA.", category: "form", dueWeeks: -4, priority: "critical", pathwayIds: ["iec-working-holiday"], link: "https://www.canada.ca/en/immigration-refugees-citizenship/services/work-canada/iec/how-apply.html", linkLabel: "How to apply IEC — IRCC" },
+    { id: "ca-iec-funds", title: "Prepare proof of CAD 2,500 in available funds", description: "Bank statement confirming at least CAD 2,500 in available funds to support yourself on arrival in Canada. A recent statement (within 30 days of application) is recommended.", category: "financial", dueWeeks: -2, priority: "critical", pathwayIds: ["iec-working-holiday"] },
+    { id: "ca-iec-medical", title: "Complete an IRCC-approved medical examination", description: "A medical exam from an IRCC-designated physician may be required depending on your country of residence. Check whether your country requires an upfront medical exam when applying for the open work permit.", category: "health", dueWeeks: -4, priority: "high", pathwayIds: ["iec-working-holiday"], link: "https://www.canada.ca/en/immigration-refugees-citizenship/services/application/medical-police/medical-exams/requirements-temporary-residents.html", linkLabel: "Medical exam requirements — IRCC" },
+
     // ── VISITOR VISA ──────────────────────────────────────────────────────
     { id: "ca-visitor-purpose", title: "Document visit purpose (tourism, family, business)", description: "State a single, clear visit purpose. For family visits, include a letter from the Canadian host with proof of their status. For business, provide an invitation letter from the Canadian company.", category: "document", dueWeeks: -4, priority: "critical", pathwayIds: ["visitor-visa"] },
     { id: "ca-visitor-ties", title: "Document strong ties to home country", description: "Employment, property, enrolled study, or family responsibilities at home. Provide documentary proof — not just assertions. This is the primary factor in visitor visa decisions.", category: "document", dueWeeks: -4, priority: "critical", pathwayIds: ["visitor-visa"] },
@@ -594,6 +657,9 @@ export const caData: CountryData = {
     { id: "ca-crs-too-low", label: "CRS score too low to receive an ITA", weight: 20, description: "While there is no fixed minimum, Express Entry draws regularly cut off above 480–550+ for FSW. An EOI profile can sit without an invitation indefinitely if the score is too low.", mitigation: "Focus on controllable CRS improvements: improve English score, obtain a provincial nomination, secure a valid job offer, or improve French. Consider PNP streams that draw at lower CRS scores.", pathwayIds: ["express-entry-fsw", "express-entry-cec", "pnp"] },
     { id: "ca-eca-negative", label: "Educational credential not recognised by ECA", weight: 25, description: "WES or other ECA bodies may downgrade your foreign credential (e.g. a bachelor's assessed as a diploma). This directly reduces CRS education points and may affect NOC eligibility.", mitigation: "Check WES assessments for your institution and country of education before applying. Consider whether ADP (Academic Degree Profile) vs ECA makes a difference for your qualification.", pathwayIds: ["express-entry-fsw", "express-entry-cec"] },
     { id: "ca-work-exp-not-qualifying", label: "Work experience duties do not match NOC lead statement", weight: 22, description: "The NOC match is based on actual duties performed, not job title alone. If your reference letter describes duties inconsistent with the NOC lead statement, the experience will be disqualified.", mitigation: "Write detailed duty descriptions in your reference letters that mirror the lead statement and main duties listed in the NOC profile. Have each letter verified by your employer's HR or legal team.", pathwayIds: ["express-entry-fsw", "express-entry-cec", "work-permit-lmia"] },
+
+    // ── IEC WORKING HOLIDAY ────────────────────────────────────────────────
+    { id: "ca-iec-age-exceeded", label: "IEC age limit exceeded at time of pool submission", weight: 35, description: "Age is assessed at the time you submit your pool profile, not when you receive your ITA or work permit. Submitting a profile on or after your 31st (or 36th, depending on nationality) birthday makes the profile ineligible.", mitigation: "Submit your IEC pool profile well before your age limit birthday. Monitor the IRCC IEC page from January each year for the pool opening date. Do not delay if you are within 6 months of the age limit.", pathwayIds: ["iec-working-holiday"] },
 
     // ── STUDY PERMIT / VISITOR ─────────────────────────────────────────────
     { id: "ca-ties-insufficient", label: "Insufficient ties to home country", weight: 25, description: "For temporary visas, officers must believe you will leave Canada at the end of your authorised period. Young applicants from high-immigration-pressure countries are scrutinised heavily.", mitigation: "Document every home country tie. If you do not have property or employment, focus on enrolled education, family financial dependants, or outstanding contractual obligations.", pathwayIds: ["study-permit", "visitor-visa"] },
