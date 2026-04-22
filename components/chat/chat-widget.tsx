@@ -291,7 +291,7 @@ export function ChatWidget() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold leading-none" style={{ color: "var(--foreground)" }}>Visa Assistant</p>
               <p className="text-[11px] mt-0.5" style={{ color: "var(--muted-foreground)" }}>
-                {currentCountry ? `${currentCountry.name} context active` : "AU · UK · CA · JP"}
+                {"AU · UK · CA · JP"}
               </p>
             </div>
             {messages.length > 0 && (
@@ -372,7 +372,7 @@ export function ChatWidget() {
                         </span>
                       ) : (
                         <div
-                          className="prose-sm"
+                          className="prose-sm break-words overflow-hidden"
                           dangerouslySetInnerHTML={{ __html: `<p class='mt-0'>${parseMarkdown(msg.content)}</p>` }}
                         />
                       )}
